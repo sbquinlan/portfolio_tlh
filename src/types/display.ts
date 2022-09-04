@@ -1,12 +1,17 @@
-import { TargetFundPosition, TargetMultiPosition, TargetPosition, TargetSimplePosition } from "./targets";
-import { AccountPosition } from "./portfolio";
-import { IKeyableRow } from "../components/SortableTable";
+import {
+  TargetFundPosition,
+  TargetMultiPosition,
+  TargetPosition,
+  TargetSimplePosition,
+} from './targets';
+import { AccountPosition } from './portfolio';
+import { IKeyableRow } from '../components/SortableTable';
 
 // Pairing of a target and the current
 export class DisplayTargetState implements IKeyableRow {
   constructor(
     public readonly target: TargetPosition,
-    public readonly holdings: AccountPosition[],
+    public readonly holdings: AccountPosition[]
   ) {}
 
   public get key(): string {
@@ -15,14 +20,10 @@ export class DisplayTargetState implements IKeyableRow {
 
   public get symbol(): string {
     if (this.target instanceof TargetMultiPosition) {
-      return this.target.tickers.join(', ')
-    } else if (
-      this.target instanceof TargetSimplePosition
-    ) {
+      return this.target.tickers.join(', ');
+    } else if (this.target instanceof TargetSimplePosition) {
       return this.target.ticker;
-    } else if (
-      this.target instanceof TargetFundPosition
-    ) {
+    } else if (this.target instanceof TargetFundPosition) {
       return this.target.fund.ticker;
     }
     return '';
@@ -38,15 +39,14 @@ export class DisplayTargetState implements IKeyableRow {
   }
 
   public get value(): number {
-    return this.holdings.reduce((acc, next) => acc + next.value, 0)
+    return this.holdings.reduce((acc, next) => acc + next.value, 0);
   }
 
   public get uplots(): number {
-    return this.holdings.reduce((acc, next) => acc + next.uplots, 0)
+    return this.holdings.reduce((acc, next) => acc + next.uplots, 0);
   }
 
   public get downlots(): number {
     return this.holdings.reduce((acc, next) => acc + next.downlots, 0);
   }
 }
-

@@ -1,6 +1,6 @@
-import React, { ReactNode, useState } from 'react'
-import Chevy from './Chevy.js'
-import formatDollas from '../lib/formatDollas.js'
+import React, { ReactNode, useState } from 'react';
+import Chevy from './Chevy.js';
+import formatDollas from '../lib/formatDollas.js';
 
 import type { AccountPosition } from '../types/portfolio';
 
@@ -12,30 +12,21 @@ abstract class BaseColumn<TRow> {
 abstract class Column<TRow, TRowValue> extends BaseColumn<TRow> {
   constructor(
     protected readonly name: string,
-    protected readonly getValue: (r: TRow) => TRowValue,
+    protected readonly getValue: (r: TRow) => TRowValue
   ) {
     super();
-
   }
 
   public renderHeaderContents() {
-    return this.name
+    return this.name;
   }
 
   public renderHeader() {
-    return (
-      <th>
-        {this.renderHeaderContents()}
-      </th>
-    )
+    return <th>{this.renderHeaderContents()}</th>;
   }
 
   public renderCell(r: TRow) {
-    return (
-      <tr>
-        {this.getValue(r) as any}
-      </tr>
-    )
+    return <tr>{this.getValue(r) as any}</tr>;
   }
 }
 
@@ -43,77 +34,79 @@ class SortableColumn<TRow, TRowValue> extends Column<TRow, TRowValue> {
   constructor(
     name: string,
     getValue: (r: TRow) => TRowValue,
-    public readonly sort: (a: TRowValue, b: TRowValue) => number,
+    public readonly sort: (a: TRowValue, b: TRowValue) => number
   ) {
     super(name, getValue);
   }
 }
 
 type TTableProps<TRow> = {
-  cols: BaseColumn<TRow>[],
-  data: TRow[],
+  cols: BaseColumn<TRow>[];
+  data: TRow[];
 };
-function Table<TRow>(props: TTableProps<TRow> & React.TableHTMLAttributes<HTMLTableElement>) {
-  const { cols, data, ... rest }  = props;
+function Table<TRow>(
+  props: TTableProps<TRow> & React.TableHTMLAttributes<HTMLTableElement>
+) {
+  const { cols, data, ...rest } = props;
   return (
-    <table { ... rest }>
+    <table {...rest}>
       <thead>
         <tr>
-          {cols.map(c => c instanceof SortableColumn ? c.renderHeader() : c.renderHeader())}
+          {cols.map((c) =>
+            c instanceof SortableColumn ? c.renderHeader() : c.renderHeader()
+          )}
         </tr>
       </thead>
       <tbody>
-        {data.map(
-          r => <tr>{cols.map(c => c.renderCell(r))}</tr>
-        )}
-      </tbody>    
+        {data.map((r) => (
+          <tr>{cols.map((c) => c.renderCell(r))}</tr>
+        ))}
+      </tbody>
     </table>
-  )
+  );
 }
 
 function NestedTable({ holdings }: TProps) {
   return (
     <tr>
       <td colSpan={6}>
-        <table className='table-auto'>
-          <thead>
-
-          </thead>
-          <tbody>
-            {}
-          </tbody>
+        <table className="table-auto">
+          <thead></thead>
+          <tbody>{}</tbody>
         </table>
       </td>
     </tr>
-  )
+  );
 }
 
 type TProps = {
-  holdings: AccountPosition[]
-}
+  holdings: AccountPosition[];
+};
 function UnallocatedRow({ holdings }: TProps) {
   const [open, setOpen] = useState(false);
-  
+
   return [
     <tr>
       <td>
-        <Chevy open={open} onClick={() => setOpen(!open)} enabled={holdings.length > 0} />
+        <Chevy
+          open={open}
+          onClick={() => setOpen(!open)}
+          enabled={holdings.length > 0}
+        />
       </td>
-      <td className='flex-1 text-xs font-semibold'>
-        Unallocated Positions
-      </td>
-      <td className='text-xs'>
+      <td className="flex-1 text-xs font-semibold">Unallocated Positions</td>
+      <td className="text-xs">
         {formatDollas(holdings.reduce((acc, next) => acc + next.value, 0))}
       </td>
-      <td className='text-xs'>NA</td>
-      <td className='text-xs'>
+      <td className="text-xs">NA</td>
+      <td className="text-xs">
         {formatDollas(holdings.reduce((acc, next) => acc + next.uplots, 0))}
       </td>
-      <td className='text-xs'>
+      <td className="text-xs">
         {formatDollas(holdings.reduce((acc, next) => acc + next.downlots, 0))}
       </td>
-    </tr>
+    </tr>,
   ];
 }
 
-export default UnallocatedRow
+export default UnallocatedRow;

@@ -1,7 +1,7 @@
-import { IKeyableRow } from "../components/SortableTable";
+import { IKeyableRow } from '../components/SortableTable';
 
 // From the lots on the account
-export interface AccountPosition extends IKeyableRow { 
+export interface AccountPosition extends IKeyableRow {
   ticker: string;
   value: number;
   uplots: number;

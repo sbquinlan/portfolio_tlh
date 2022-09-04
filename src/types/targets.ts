@@ -1,4 +1,4 @@
-import { FundHoldings } from "./funds";
+import { FundHoldings } from './funds';
 
 // "Portfolio Targets" define what the portfolio should hold.
 export interface TargetPosition {
@@ -8,10 +8,7 @@ export interface TargetPosition {
 }
 
 export class TargetMultiPosition implements TargetPosition {
-  constructor(
-    public readonly tickers: string[],
-    public weight: number,
-  ) {}
+  constructor(public readonly tickers: string[], public weight: number) {}
 
   public get symbol(): string {
     return this.tickers.join(', ');
@@ -20,7 +17,6 @@ export class TargetMultiPosition implements TargetPosition {
     return '';
   }
 }
-
 
 abstract class TargetSinglePosition implements TargetPosition {
   abstract readonly ticker: string;
@@ -36,17 +32,14 @@ export class TargetSimplePosition extends TargetSinglePosition {
   constructor(
     public readonly ticker: string,
     public readonly name: string,
-    public weight: number,
+    public weight: number
   ) {
     super();
   }
 }
 
 export class TargetFundPosition extends TargetSinglePosition {
-  constructor(
-    public readonly fund: FundHoldings,
-    public weight: number,
-  ) {
+  constructor(public readonly fund: FundHoldings, public weight: number) {
     super();
   }
   public get ticker(): string {
