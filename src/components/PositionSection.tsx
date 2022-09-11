@@ -1,9 +1,7 @@
 import { useMemo } from 'react';
 
 import {
-  IKeyableRow,
   CustomColumn,
-  TableColumn,
   ValueColumn,
 } from './SortableTable';
 import { CollapsibleTable } from './CollapsibleTable';
@@ -12,7 +10,7 @@ import { AccountPosition } from '../types/portfolio';
 import AccountUpload from './AccountUpload';
 import formatDollas from '../lib/formatDollas';
 
-export class MoneyColumn<TRow extends IKeyableRow> extends ValueColumn<
+export class MoneyColumn<TRow extends { key: string }> extends ValueColumn<
   TRow,
   number
 > {

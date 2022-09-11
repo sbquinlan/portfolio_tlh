@@ -1,14 +1,9 @@
-import {
-  TargetFundPosition,
-  TargetMultiPosition,
-  TargetPosition,
-  TargetSimplePosition,
-} from './targets';
+import { TargetPosition } from './targets';
 import { AccountPosition } from './portfolio';
-import { IKeyableRow } from '../components/SortableTable';
+import { IKeyable } from '../components/SortableTable';
 
 // Pairing of a target and the current
-export class DisplayTargetState implements IKeyableRow {
+export class DisplayTargetState implements IKeyable {
   constructor(
     public readonly target: TargetPosition,
     public readonly holdings: AccountPosition[]
@@ -19,23 +14,11 @@ export class DisplayTargetState implements IKeyableRow {
   }
 
   public get symbol(): string {
-    if (this.target instanceof TargetMultiPosition) {
-      return this.target.tickers.join(', ');
-    } else if (this.target instanceof TargetSimplePosition) {
-      return this.target.ticker;
-    } else if (this.target instanceof TargetFundPosition) {
-      return this.target.fund.ticker;
-    }
-    return '';
+    return this.target.key
   }
 
   public get name(): string {
-    if (this.target instanceof TargetFundPosition) {
-      return this.target.fund.name;
-    } else if (this.target instanceof TargetSimplePosition) {
-      return this.target.name;
-    }
-    return '';
+    return this.target.name
   }
 
   public get value(): number {

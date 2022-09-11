@@ -1,9 +1,9 @@
 import React, { ReactNode, useState } from 'react';
 import { Down, Up } from './icons';
 
-export type IKeyableRow = { key: string };
+export interface IKeyable { key: string };
 
-export interface TableColumn<TRow extends IKeyableRow> {
+export interface TableColumn<TRow extends IKeyable> {
   sort(a: TRow, b: TRow): number;
   renderHeader(
     sort_direction?: 1 | -1 | undefined,
@@ -19,7 +19,7 @@ export interface TableColumn<TRow extends IKeyableRow> {
   ): ReactNode;
 }
 
-export class CustomColumn<TRow extends IKeyableRow>
+export class CustomColumn<TRow extends IKeyable>
   implements TableColumn<TRow>
 {
   constructor(
@@ -63,7 +63,7 @@ export class CustomColumn<TRow extends IKeyableRow>
   }
 }
 
-export class ValueColumn<TRow extends IKeyableRow, TVal extends ReactNode>
+export class ValueColumn<TRow extends IKeyable, TVal extends ReactNode>
   implements TableColumn<TRow>
 {
   constructor(
@@ -134,11 +134,11 @@ export function TableHeader({
 }
 
 type Sorter<TRow> = (a: TRow, b: TRow) => number;
-export type TSortableProps<TRow extends IKeyableRow> = {
+export type TSortableProps<TRow extends IKeyable> = {
   cols: TableColumn<TRow>[];
   onSortChange: (s: Sorter<TRow>) => void;
 };
-export function SortableTableHeader<TRow extends IKeyableRow>({
+export function SortableTableHeader<TRow extends IKeyable>({
   cols,
   onSortChange,
   ...rest
@@ -165,11 +165,48 @@ export function SortableTableHeader<TRow extends IKeyableRow>({
   );
 }
 
-export type TSortableTableProps<TRow extends IKeyableRow> = {
+/**
+ * The idea is that columns are basically a way of defining a mapped function over some
+ * collection of TRow. This just displays multiple mapped functions. The header is intended
+ * to provide controls / labels. The footer, aggregations / reductions of the columns. 
+ */
+ export type TDataTableProps<TRow extends IKeyable> = {
+  rows: TRow[];
+  cols: TableColumn<TRow>[];
+
+  headerComponent?: React.JSXElementConstructor<{ cols: TableColumn<TRow>[] }>,
+  bodyComponent: React.JSXElementConstructor<{ rows: TRow[], cols: TableColumn<TRow>[] }>,
+  footerComponent?: React.JSXElementConstructor<{ rows: TRow[], cols: TableColumn<TRow>[] }>,
+};
+export function DataTable<TRow extends IKeyable>({
+  rows,
+  cols,
+
+  bodyComponent,
+  footerComponent,
+  ... rest
+}: TDataTableProps<TRow>) {
+  const [sorter, setSorter] = useState(() => (_a: TRow, _b: TRow) => 0);
+  const BodyComponent = bodyComponent;
+  const FooterComponent = footerComponent;
+  return (
+    <table className="w-full table-auto" { ... rest }>
+      <SortableTableHeader
+        className="text-xs"
+        cols={cols}
+        onSortChange={setSorter}
+      />
+      <BodyComponent cols={cols} rows={rows.sort(sorter)} />
+      {FooterComponent ? <FooterComponent cols={cols} rows={rows} /> : null}
+    </table>
+  )
+}
+
+export type TSortableTableProps<TRow extends IKeyable> = {
   rows: TRow[];
   cols: TableColumn<TRow>[];
 };
-export function SortableTable<TRow extends IKeyableRow>({
+export function SortableTable<TRow extends IKeyable>({
   rows,
   cols,
 }: TSortableTableProps<TRow>) {

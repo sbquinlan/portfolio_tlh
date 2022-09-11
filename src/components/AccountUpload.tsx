@@ -40,7 +40,6 @@ export default function AccountUpload({
       ) => {
         const prev = acc.get(ticker);
         return acc.set(ticker, {
-          key: ticker,
           ticker,
           value: parseFloat(value) + (prev?.value || 0),
           uplots: Math.max(0, parseFloat(pnl)) + (prev?.uplots || 0),
@@ -51,8 +50,6 @@ export default function AccountUpload({
     );
     onChange(positions);
   }
-
-  const input_ref: React.RefObject<HTMLInputElement> = React.createRef();
   return (
     <input
       className="block text-sm file:mr-4 file:py-2 file:px-4 file:rounded-sm file:border-0 file:text-sm file:font-semibold file:bg-gray-300 hover:file:bg-gray-200"

@@ -1,7 +1,7 @@
 import React, { ReactNode, useState } from 'react';
 
 import {
-  IKeyableRow,
+  IKeyable,
   TableColumn,
   SortableTableHeader,
   SortableTable,
@@ -9,11 +9,11 @@ import {
 } from './SortableTable';
 import Chevy from './Chevy';
 
-export type TCollapsibleTableRowProps<TRow extends IKeyableRow> = {
+export type TCollapsibleTableRowProps<TRow extends IKeyable> = {
   data: TRow;
   cols: TableColumn<TRow>[];
 };
-export function CollapsibleTableRow<TRow extends IKeyableRow>({
+export function CollapsibleTableRow<TRow extends IKeyable>({
   data,
   cols,
   children,
@@ -47,8 +47,8 @@ export function CollapsibleTableRow<TRow extends IKeyableRow>({
 }
 
 export type TCollapsibleTableProps<
-  TRow extends IKeyableRow,
-  TNestedRow extends IKeyableRow
+  TRow extends IKeyable,
+  TNestedRow extends IKeyable
 > = {
   cols: TableColumn<TRow>[];
   rows: TRow[];
@@ -59,8 +59,8 @@ export type TCollapsibleTableProps<
   footer?: ReactNode;
 };
 export function CollapsibleTable<
-  TRow extends IKeyableRow,
-  TNestedRow extends IKeyableRow
+  TRow extends IKeyable,
+  TNestedRow extends IKeyable
 >({
   rows,
   cols,
