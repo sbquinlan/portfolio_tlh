@@ -12,7 +12,7 @@ export type TTypeaheadListProps<TDataElement> = {
 
 export type TTypeaheadProps<TDataElement> = {
   "aria-label": string,
-  listComponent: React.JSXElementConstructor<TTypeaheadListProps<TDataElement>>,
+  listComponent: React.FC<TTypeaheadListProps<TDataElement>>,
   
   onChange: React.ChangeEventHandler<HTMLInputElement>,
   options: TDataElement[],

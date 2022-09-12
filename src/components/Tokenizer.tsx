@@ -7,7 +7,7 @@ export type TTokenListProps<TDataElement> = {
 } & React.RefAttributes<HTMLButtonElement | null>;
 
 export type TTokenizerProps<TDataElement> = {
-  tokensComponent: React.JSXElementConstructor<TTokenListProps<TDataElement>>
+  tokensComponent: React.FC<TTokenListProps<TDataElement>>
   tokens: TDataElement[],
   onTokensChange: React.Dispatch<React.SetStateAction<TDataElement[]>>,
 } & Omit<TTypeaheadProps<TDataElement>, 'onSelectOption'>;

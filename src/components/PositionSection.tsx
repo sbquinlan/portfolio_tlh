@@ -1,144 +1,163 @@
-import { useMemo } from 'react';
+import React, { ReactNode, useMemo } from 'react';
 
 import {
-  CustomColumn,
-  ValueColumn,
+  IKeyable,
+  TableColumn,
+  StringColumn,
+  NumberColumn,
+  TSortableTableChildProps,
+  TSortableTableRowProps,
+  SortableTable
 } from './SortableTable';
-import { CollapsibleTable } from './CollapsibleTable';
 import { DisplayTargetState } from '../types/display';
 import { AccountPosition } from '../types/portfolio';
 import AccountUpload from './AccountUpload';
 import formatDollas from '../lib/formatDollas';
-
-export class MoneyColumn<TRow extends { key: string }> extends ValueColumn<
-  TRow,
-  number
-> {
+import { CollapsibleTable, TCollapsibleNestedChildProps } from './CollapsibleTable';
+class MoneyColumn<TRow extends IKeyable> extends NumberColumn<TRow> {
   constructor(
-    header: string,
+    label: string,
     getValue: (r: TRow) => number,
-    headerClassname: string = '',
-    rowClassname: string = ''
   ) {
-    super(header, '', getValue, (a, b) => b - a, headerClassname, rowClassname);
+    super(label, getValue);
   }
 
-  renderCell(r: TRow, props: React.TdHTMLAttributes<HTMLTableCellElement>) {
-    return (
-      <td
-        className={this.rowClassname}
-        {...props}
-        key={`${this.header}_${r.key}`}
-      >
-        {formatDollas(this.getValue(r))}
-      </td>
-    );
+  getFormattedValue(r: TRow): ReactNode {
+    return formatDollas(this.getValue(r)); 
   }
+}
 
-  renderFooter(
-    rs: TRow[],
-    props?: React.TdHTMLAttributes<HTMLTableCellElement>
-  ) {
-    return (
-      <td {...props} key={this.header}>
-        {formatDollas(
-          rs.map((r) => this.getValue(r)).reduce((acc, n) => acc + n, 0)
-        )}
-      </td>
-    );
-  }
+const TARGET_COLUMNS = [
+  new StringColumn<DisplayTargetState>(
+    'Name',
+    (r) => r.name,
+  ),
+  new MoneyColumn<DisplayTargetState>(
+    'Value',
+    (r) => r.value,
+  ),
+  new MoneyColumn<DisplayTargetState>(
+    'Target',
+    (_) => 0,
+  ),
+  new MoneyColumn<DisplayTargetState>(
+    'Uplots',
+    (r) => r.uplots,
+  ),
+  new MoneyColumn<DisplayTargetState>(
+    'Downlots',
+    (r) => r.downlots,
+  ),
+  new MoneyColumn<DisplayTargetState>(
+    'Net',
+    (r) => r.uplots + r.downlots,
+  ),
+];
+const NESTED_COLUMNS = [
+  new StringColumn<AccountPosition>(
+    'Symbol',
+    (r) => r.ticker,
+  ),
+  new MoneyColumn<AccountPosition>(
+    'Value',
+    (r) => r.value,
+  ),
+  // placeholder for "target" which doesn't exist here
+  new TableColumn(
+    'Target',
+    () => '--'
+  ),
+  new MoneyColumn<AccountPosition>(
+    'Uplots',
+    (r) => r.uplots,
+  ),
+  new MoneyColumn<AccountPosition>(
+    'Downlots',
+    (r) => r.downlots,
+  ),
+  new MoneyColumn<AccountPosition>(
+    'Net',
+    (r) => r.uplots + r.downlots,
+  ),
+]
+
+function TargetTableRowFragment({
+  row,
+  cols,
+}: TSortableTableRowProps<DisplayTargetState>) {
+  return (
+    <React.Fragment>
+      {cols.map(c => (
+        <td key={c.key} className={c.label === 'Name' ? 'max-w-0 truncate text-left' : 'text-center text-sm w-24'}>
+          {c.getFormattedValue(row)}
+        </td>
+      ))}
+    </React.Fragment>
+  );
+}
+
+function TargetTableFooter({
+  rows,
+  cols
+}: TSortableTableChildProps<DisplayTargetState>) {
+  return (
+    <tfoot>
+      <tr className="border-t-2">
+        <td key='chevy' />
+        {cols.map(c => (
+          c.label === 'Name' 
+          ? (
+            <td key={c.key} className='text-center text-sm font-semibold'>
+              Total
+            </td>
+          ) 
+          : (
+            <td key={c.key} className='text-center text-sm font-semibold'>
+              {c instanceof NumberColumn ? formatDollas(rows.reduce((sum, row) => sum + c.getValue(row), 0)) : '--'}
+            </td>
+          )
+        ))}
+      </tr>
+  </tfoot>
+  )
+}
+
+function PositionTableBody({
+  rows,
+  cols,
+}: TSortableTableChildProps<AccountPosition>) {
+  return (
+    <tbody>
+      {rows.map(r => (
+        <tr key={r.key}>
+          {cols.map(c => (
+            <td key={c.key} className={c.label === 'Symbol' ? 'max-w-0 truncate text-sm font-medium pl-2' : 'text-center text-xs w-24'}>
+              {c.getFormattedValue(r)}
+            </td>
+          ))}
+        </tr>
+      ))}
+    </tbody>
+  )
+}
+
+function NestedPositionTable({
+  row
+}: TCollapsibleNestedChildProps<DisplayTargetState>) {
+  return (
+    <SortableTable
+      rows={row.holdings}
+      cols={NESTED_COLUMNS}
+      bodyComponent={PositionTableBody}
+    />
+  )
 }
 
 type TProps = {
   positions: DisplayTargetState[];
   setPositions: (p: Map<string, AccountPosition>) => void;
 };
-function PositionSection({ positions, setPositions }: TProps) {
-  const cols = useMemo(
-    () => [
-      new ValueColumn<DisplayTargetState, string>(
-        'Name',
-        'Total',
-        (r) => r.name,
-        (a, b) => (a as string).localeCompare(b),
-        '',
-        'max-w-0 overflow-hidden whitespace-nowrap text-left'
-      ),
-      new MoneyColumn<DisplayTargetState>(
-        'Value',
-        (r) => r.value,
-        '',
-        'text-center text-sm w-24'
-      ),
-      new MoneyColumn<DisplayTargetState>(
-        'Target',
-        (_) => 0,
-        '',
-        'text-center text-sm w-24'
-      ),
-      new MoneyColumn<DisplayTargetState>(
-        'Uplots',
-        (r) => r.uplots,
-        '',
-        'text-center text-sm w-24'
-      ),
-      new MoneyColumn<DisplayTargetState>(
-        'Downlots',
-        (r) => r.downlots,
-        '',
-        'text-center text-sm w-24'
-      ),
-      new MoneyColumn<DisplayTargetState>(
-        'Net',
-        (r) => r.uplots + r.downlots,
-        '',
-        'text-center text-sm w-24'
-      ),
-    ],
-    []
-  );
-  const nestedCols = useMemo(
-    () => [
-      new ValueColumn<AccountPosition, string>(
-        'Symbol',
-        'Total',
-        (r) => r.ticker,
-        (a, b) => (a as string).localeCompare(b),
-        '',
-        'max-w-0 overflow-hidden whitespace-nowrap text-sm font-medium pl-2'
-      ),
-      new MoneyColumn<AccountPosition>(
-        'Value',
-        (r) => r.value,
-        '',
-        'text-center text-xs w-24'
-      ),
-      // placeholder for "target" which doesn't exist here
-      new CustomColumn(
-        () => <th />,
-        () => <td className="text-center text-xs w-24">--</td>
-      ),
-      new MoneyColumn<AccountPosition>(
-        'Uplots',
-        (r) => r.uplots,
-        '',
-        'text-center text-xs w-24'
-      ),
-      new MoneyColumn<AccountPosition>(
-        'Downlots',
-        (r) => r.downlots,
-        '',
-        'text-center text-xs w-24'
-      ),
-      new MoneyColumn<AccountPosition>(
-        'Net',
-        (r) => r.uplots + r.downlots,
-        '',
-        'text-center text-xs w-24'
-      ),
-    ],
-    []
-  );
+function PositionSection({ positions, setPositions }: TProps) {  
   return (
     <div>
       <div className="flex flex-row items-center py-2 px-4">
@@ -146,24 +165,15 @@ function PositionSection({ positions, setPositions }: TProps) {
         <AccountUpload onChange={(p) => setPositions(p)} />
       </div>
       <CollapsibleTable
+        className="table-auto w-full border border-black"
         rows={positions}
-        cols={cols}
-        nestedRows={(r) => r.holdings}
-        nestedCols={nestedCols}
-        footer={
-          <tfoot>
-            <tr className="border-t-2">
-              <td />
-              {cols.map((c) =>
-                c.renderFooter(positions, {
-                  className: 'text-center text-sm font-semibold',
-                })
-              )}
-            </tr>
-          </tfoot>
-        }
+        cols={TARGET_COLUMNS}
+        fragmentComponent={TargetTableRowFragment}
+        nestedComponent={NestedPositionTable}
+        footerComponent={TargetTableFooter}
       />
     </div>
   );
 }
 export default PositionSection;
+

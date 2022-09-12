@@ -1,124 +1,57 @@
-import React, { ReactNode, useState } from 'react';
+import React, { ReactNode, SetStateAction, useState } from 'react';
 import { Down, Up } from './icons';
 
 export interface IKeyable { key: string };
-
-export interface TableColumn<TRow extends IKeyable> {
-  sort(a: TRow, b: TRow): number;
-  renderHeader(
-    sort_direction?: 1 | -1 | undefined,
-    props?: React.ThHTMLAttributes<HTMLTableCellElement>
-  ): ReactNode;
-  renderCell(
-    r: TRow,
-    props?: React.TdHTMLAttributes<HTMLTableCellElement>
-  ): ReactNode;
-  renderFooter(
-    rs: TRow[],
-    props?: React.TdHTMLAttributes<HTMLTableCellElement>
-  ): ReactNode;
-}
-
-export class CustomColumn<TRow extends IKeyable>
-  implements TableColumn<TRow>
-{
+export class TableColumn<TRow extends IKeyable, TValue extends ReactNode> implements IKeyable {
   constructor(
-    private readonly _renderHeader?: (
-      sort_direction?: 1 | -1 | undefined,
-      _props?: React.ThHTMLAttributes<HTMLTableCellElement>
-    ) => ReactNode,
-    private readonly _renderCell?: (
-      r: TRow,
-      props?: React.TdHTMLAttributes<HTMLTableCellElement>
-    ) => ReactNode,
-    private readonly _renderFooter?: (
-      rs: TRow[],
-      props?: React.TdHTMLAttributes<HTMLTableCellElement>
-    ) => ReactNode,
-    private readonly _sort?: (a: TRow, b: TRow) => number
+    public readonly label: string,
+    public readonly getValue: (r: TRow) => TValue,
   ) {}
-
-  sort(a: TRow, b: TRow): number {
-    return this._sort ? this._sort(a, b) : 0;
+  
+  get key(): string {
+    return this.label;
   }
 
-  renderHeader(
-    sort_direction?: 1 | -1 | undefined,
-    props?: React.ThHTMLAttributes<HTMLTableCellElement>
-  ): React.ReactNode {
-    return this._renderHeader
-      ? this._renderHeader(sort_direction, props)
-      : undefined;
-  }
-
-  renderCell(r: TRow, props?: React.TdHTMLAttributes<HTMLTableCellElement>) {
-    return this._renderCell ? this._renderCell(r, props) : undefined;
-  }
-
-  renderFooter(
-    rs: TRow[],
-    props?: React.TdHTMLAttributes<HTMLTableCellElement>
-  ): ReactNode {
-    return this._renderFooter ? this._renderFooter(rs, props) : undefined;
+  getFormattedValue(r: TRow): ReactNode {
+    return this.getValue(r);
   }
 }
 
-export class ValueColumn<TRow extends IKeyable, TVal extends ReactNode>
-  implements TableColumn<TRow>
+export class SortableColumn<TRow extends IKeyable, TValue extends string | number>
+  extends TableColumn<TRow, TValue>
 {
   constructor(
-    protected readonly header: string,
-    protected readonly footer: string,
-    protected readonly getValue: (r: TRow) => TVal,
-    protected readonly _valSort: (a: TVal, b: TVal) => number,
-    protected readonly headerClassname: string = '',
-    protected readonly rowClassname: string = ''
-  ) {}
-
-  sort(a: TRow, b: TRow) {
-    return this._valSort(this.getValue(a), this.getValue(b));
+    label: string,
+    getValue: (r: TRow) => TValue,
+    public readonly sort: (a: TRow, b: TRow) => number
+  ) {
+    super(label, getValue);
   }
+}
 
-  renderHeader(
-    sort_direction?: 1 | -1 | undefined,
-    props?: React.ThHTMLAttributes<HTMLTableCellElement>
-  ): ReactNode {
-    return (
-      <th className={this.headerClassname} {...props} key={this.header}>
-        {this.header}
-        {sort_direction === 1 ? (
-          <Down className="inline-block w-5 h-5" />
-        ) : sort_direction === -1 ? (
-          <Up className="inline-block w-5 h-5" />
-        ) : undefined}
-      </th>
-    );
+export class NumberColumn<TRow extends IKeyable> extends SortableColumn<TRow, number> {
+  constructor(
+    label: string,
+    getValue: (r: TRow) => number,
+  ) {
+    super(
+      label, 
+      getValue, 
+      (a: TRow, b: TRow) => getValue(b) - getValue(a)
+    )
   }
+}
 
-  renderCell(
-    r: TRow,
-    props?: React.TdHTMLAttributes<HTMLTableCellElement>
-  ): ReactNode {
-    return (
-      <td
-        className={this.rowClassname}
-        {...props}
-        key={`${this.header}_${r.key}`}
-      >
-        {this.getValue(r)}
-      </td>
-    );
-  }
-
-  renderFooter(
-    rs: TRow[],
-    props?: React.TdHTMLAttributes<HTMLTableCellElement>
-  ): ReactNode {
-    return (
-      <td {...props} key={this.header}>
-        {this.footer}
-      </td>
-    );
+export class StringColumn<TRow extends IKeyable> extends SortableColumn<TRow, string> {
+  constructor(
+    label: string,
+    getValue: (r: TRow) => string,
+  ) {
+    super(
+      label, 
+      getValue, 
+      (a: TRow, b: TRow) => getValue(a).localeCompare(getValue(b))
+    )
   }
 }
 
@@ -133,96 +66,98 @@ export function TableHeader({
   );
 }
 
-type Sorter<TRow> = (a: TRow, b: TRow) => number;
-export type TSortableProps<TRow extends IKeyable> = {
-  cols: TableColumn<TRow>[];
-  onSortChange: (s: Sorter<TRow>) => void;
-};
+export type SortInfo<TRow extends IKeyable> = [1 | -1, SortableColumn<TRow, any> | undefined];
+type TSortableColumnHeaderProps<TRow extends IKeyable> = {
+  col: TableColumn<TRow, any>,
+  direction: 1 | -1 | undefined,
+  setSort: (s: [1 | -1, SortableColumn<TRow, any>]) => void,
+} & React.ThHTMLAttributes<HTMLTableCellElement>
+export function SortableColumnHeader<TRow extends IKeyable>({
+  col,
+  direction,
+  setSort,
+  ... props
+}: TSortableColumnHeaderProps<TRow>) {
+  if (!(col instanceof SortableColumn)) {
+    return <th {... props} key={col.key}>{col.label}</th>;
+  }
+  const sort_handler = () => { setSort([direction === 1 ? -1 : 1, col]) };
+  return (
+    <th {...props} onClick={sort_handler} key={col.key}>
+      {col.label}
+      {direction === 1 ? (
+        <Down className="inline-block w-5 h-5" />
+      ) : direction === -1 ? (
+        <Up className="inline-block w-5 h-5" />
+      ) : undefined}
+    </th>
+  )
+}
+
+
+export type TSortableHeaderProps<TRow extends IKeyable> = {
+  cols: TableColumn<TRow, any>[];
+  sort: SortInfo<TRow>,
+  setSort: React.Dispatch<SetStateAction<SortInfo<TRow>>>
+} & React.HTMLAttributes<HTMLTableSectionElement>
 export function SortableTableHeader<TRow extends IKeyable>({
   cols,
-  onSortChange,
+  sort,
+  setSort,
   ...rest
-}: TSortableProps<TRow> & React.HTMLAttributes<HTMLTableSectionElement>) {
-  const [[dir, col], setSort] = useState<[1 | -1, number | undefined]>([
-    1,
-    undefined,
-  ]);
-  function toggleSort(new_col: number) {
-    const new_dir = col === new_col ? -dir : 1;
-    setSort([new_dir as 1 | -1, new_col]);
-    onSortChange(
-      (a, b) => new_dir * (new_col !== undefined ? cols[new_col].sort(a, b) : 0)
-    );
-  }
+}: TSortableHeaderProps<TRow> & React.HTMLAttributes<HTMLTableSectionElement>) {
+  const [sdir, scol] = sort;
   return (
     <TableHeader {...rest}>
-      {cols.map((c, i) =>
-        c.renderHeader(i === col ? dir : undefined, {
-          onClick: () => toggleSort(i),
-        })
-      )}
+      {cols.map(col => (
+        <SortableColumnHeader 
+          key={col.key}
+          col={col}
+          direction={scol === col ? sdir : undefined}
+          setSort={setSort}
+        />
+      ))}
     </TableHeader>
   );
 }
-
-/**
- * The idea is that columns are basically a way of defining a mapped function over some
- * collection of TRow. This just displays multiple mapped functions. The header is intended
- * to provide controls / labels. The footer, aggregations / reductions of the columns. 
- */
- export type TDataTableProps<TRow extends IKeyable> = {
+export type TSortableTableRowProps<TRow extends IKeyable> = {
+  row: TRow;
+  cols: TableColumn<TRow, any>[];
+}
+export type TSortableTableChildProps<TRow extends IKeyable> = {
   rows: TRow[];
-  cols: TableColumn<TRow>[];
-
-  headerComponent?: React.JSXElementConstructor<{ cols: TableColumn<TRow>[] }>,
-  bodyComponent: React.JSXElementConstructor<{ rows: TRow[], cols: TableColumn<TRow>[] }>,
-  footerComponent?: React.JSXElementConstructor<{ rows: TRow[], cols: TableColumn<TRow>[] }>,
-};
-export function DataTable<TRow extends IKeyable>({
+  cols: TableColumn<TRow, any>[];
+}
+export type TSortableTableProps<TRow extends IKeyable> = {
+  bodyComponent: React.FC<TSortableTableChildProps<TRow>>,
+  footerComponent?: React.FC<TSortableTableChildProps<TRow>>,
+} & TSortableTableChildProps<TRow> & React.TableHTMLAttributes<HTMLTableElement>
+export function SortableTable<TRow extends IKeyable>({
   rows,
   cols,
 
   bodyComponent,
   footerComponent,
   ... rest
-}: TDataTableProps<TRow>) {
-  const [sorter, setSorter] = useState(() => (_a: TRow, _b: TRow) => 0);
+}: TSortableTableProps<TRow>) {
+  const [sort, setSort] = useState<SortInfo<TRow>>([1, undefined]);
+  const [sort_dir, sort_col] = sort;
+  const sorted = rows.sort(
+    (a, b) => sort_dir * (sort_col?.sort(a, b) ?? 0)
+  )
+  
   const BodyComponent = bodyComponent;
   const FooterComponent = footerComponent;
   return (
     <table className="w-full table-auto" { ... rest }>
       <SortableTableHeader
-        className="text-xs"
+        className="border-b border-black"
         cols={cols}
-        onSortChange={setSorter}
+        sort={sort}
+        setSort={setSort}
       />
-      <BodyComponent cols={cols} rows={rows.sort(sorter)} />
+      <BodyComponent cols={cols} rows={sorted} />
       {FooterComponent ? <FooterComponent cols={cols} rows={rows} /> : null}
     </table>
   )
-}
-
-export type TSortableTableProps<TRow extends IKeyable> = {
-  rows: TRow[];
-  cols: TableColumn<TRow>[];
-};
-export function SortableTable<TRow extends IKeyable>({
-  rows,
-  cols,
-}: TSortableTableProps<TRow>) {
-  const [sorter, setSorter] = useState(() => (_a: TRow, _b: TRow) => 0);
-  return (
-    <table className="w-full table-auto bg-gray-100 border-y-2">
-      <SortableTableHeader
-        className="text-xs"
-        cols={cols}
-        onSortChange={(s) => setSorter(() => s)}
-      />
-      <tbody>
-        {rows.sort(sorter).map((r) => (
-          <tr key={r.key}>{cols.map((c) => c.renderCell(r))}</tr>
-        ))}
-      </tbody>
-    </table>
-  );
 }
