@@ -1,8 +1,8 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import { TargetPosition } from '../types/targets';
-import { Xmark } from './icons';
-import { Tokenizer, TTokenListProps } from './Tokenizer';
-import { TTypeaheadListProps } from './Typeahead';
+import { Xmark } from '../lib/icons';
+import { Tokenizer, TTokenListProps } from '../lib/Tokenizer';
+import { TTypeaheadListProps } from '../lib/Typeahead';
 
 const TokenList = React.forwardRef<HTMLButtonElement | null, TTokenListProps<string>>(
   ({ elements, onRemove }, ref) => {

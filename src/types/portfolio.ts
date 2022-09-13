@@ -1,4 +1,4 @@
-import { IKeyable } from '../components/SortableTable';
+import { IKeyable } from '../lib/SortableTable';
 
 // From the lots on the account
 export interface AccountPosition extends IKeyable {

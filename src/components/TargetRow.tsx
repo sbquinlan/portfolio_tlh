@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react';
 import { TargetPosition } from '../types/targets';
-import { Xmark } from './icons';
+import { Xmark } from '../lib/icons';
 
 type TProps = {
   target: TargetPosition;

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { linkEventHandlers } from "./linkEventHandlers";
+import { linkEventHandlers } from "../lib/linkEventHandlers";
 
 export type TTypeaheadListProps<TDataElement> = {
   "aria-label": string,

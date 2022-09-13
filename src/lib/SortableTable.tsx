@@ -1,5 +1,5 @@
 import React, { ReactNode, SetStateAction, useState } from 'react';
-import { Down, Up } from './icons';
+import { Down, Up } from '../lib/icons';
 
 export interface IKeyable { key: string };
 export class TableColumn<TRow extends IKeyable, TValue extends ReactNode> implements IKeyable {
