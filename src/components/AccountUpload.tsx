@@ -39,11 +39,16 @@ export default function AccountUpload({
         { Symbol: ticker, FifoPnlUnrealized: pnl, PositionValue: value }
       ) => {
         const prev = acc.get(ticker);
+        const float_pnl = parseFloat(pnl);
+        const float_value = parseFloat(value)
         return acc.set(ticker, {
+          key: ticker,
           ticker,
-          value: parseFloat(value) + (prev?.value || 0),
-          uplots: Math.max(0, parseFloat(pnl)) + (prev?.uplots || 0),
-          downlots: Math.min(0, parseFloat(pnl)) + (prev?.downlots || 0),
+          value: float_value + (prev?.value || 0),
+          gain:  Math.max(0, float_pnl) + (prev?.gain || 0),
+          gainvalue: (float_pnl >= 0 ? float_value : 0) + (prev?.gainvalue || 0),
+          loss:  Math.min(0, float_pnl) + (prev?.loss || 0),
+          lossvalue: (float_pnl < 0 ? float_value : 0) + (prev?.lossvalue || 0),
         });
       },
       new Map()

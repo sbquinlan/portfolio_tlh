@@ -4,6 +4,8 @@ import { IKeyable } from '../lib/SortableTable';
 export interface AccountPosition extends IKeyable {
   ticker: string;
   value: number;
-  uplots: number;
-  downlots: number;
+  gain: number;
+  gainvalue: number;
+  loss: number;
+  lossvalue: number;
 }

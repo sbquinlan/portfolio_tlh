@@ -22,7 +22,7 @@ export function CollapsibleTableRow<TRow extends IKeyable>({
   const [open, setOpen] = useState(false);
   const RowFragment = fragmentComponent;
   const first_row = (
-    <tr key={row.key}>
+    <tr>
       <td className="w-6">
         <Chevy
           open={open}
@@ -35,7 +35,7 @@ export function CollapsibleTableRow<TRow extends IKeyable>({
   );
   const second_row = children 
     ? (
-      <tr key={`${row.key}_collapsible`}>
+      <tr>
         <td colSpan={cols.length + 1} className="p-0">
           <div
             className={`ease-out duration-400 transition-all overflow-y-auto max-h-60 ${
@@ -113,7 +113,7 @@ export function CollapsibleTable<TRow extends IKeyable>({
   return (
     <table className="w-full table-auto" { ... rest }>
       <SortableTableHeader
-        className='border-b border-black'
+        className='bg-gray-200'
         cols={cols_for_header}
         sort={sort}
         setSort={setSort}

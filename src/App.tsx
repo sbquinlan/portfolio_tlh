@@ -1,53 +1,27 @@
-import { DisplayTargetState } from './types/display';
 import { TargetPosition } from './types/targets';
 import { AccountPosition } from './types/portfolio';
 import { useState } from 'react';
 import TargetSection from './components/TargetSection';
 import PositionSection from './components/PositionSection';
+import TradeSection from './components/TradeSection';
+
+
 
 function App() {
-  const [targets, setTargets] = useState<TargetPosition[]>([
-    new TargetPosition(['SCHG', 'VTI', 'VXF'], 'Total Market', 35),
-    new TargetPosition(['VCITX'], 'CA Muni Bonds', 35),
-    new TargetPosition(['VIG', 'SCHD'], 'Dividend', 10),
-    new TargetPosition(['VEA', 'SCHF'], 'International', 10), 
-    new TargetPosition(['IEMG', 'VWO'], 'Emerging Market', 10),
-
-    new TargetPosition(['VBK', 'VB'], 'Small Cap', 0), 
-    new TargetPosition(
-      ['VOT'],
-      'Vanguard Mid-Cap Growth Index Fund ETF',
-      0
-    ),
-
-    new TargetPosition(['F'], 'Ford', 0),
-    new TargetPosition(['AAL'], 'American Airlines', 0),
-  ]);
+  const [targets, setTargets] = useState<Map<string, TargetPosition>>(
+    new Map([
+      new TargetPosition(['SCHG', 'VTI', 'VXF'], 'Total Market', 0.40),
+      new TargetPosition(['VCITX', 'CMF'], 'CA Muni Bonds', 0.30),
+      new TargetPosition(['VIG', 'SCHD'], 'Dividend', 0.10),
+      new TargetPosition(['VEA', 'SCHF'], 'International', 0.10), 
+      new TargetPosition(['IEMG', 'VWO'], 'Emerging Market', 0.10),
+    ].map(tp => [tp.key, tp]))
+  );
   const [positions, setPositions] = useState<Map<string, AccountPosition>>(
     new Map()
   );
-  const portfolio_positions = targets.reduce<DisplayTargetState[]>(
-    (acc, target) => acc.concat(
-      new DisplayTargetState(
-        target,
-        target.tickers
-          .map((ticker) => positions.get(ticker))
-          .filter((n) => !!n) as any
-      )
-    ),
-    []
-  );
 
-  const tickers = targets.reduce<string[]>(
-    (acc, next) => acc.concat(next.tickers),
-    []
-  );
-  const unallocated = new DisplayTargetState(
-    new TargetPosition(['unallocated'], 'Unallocated Positions', 0),
-    Array.from(positions.values())
-      .filter((p) => !~tickers.indexOf(p.ticker))
-      .sort((a, b) => b.value - a.value)
-  );
+  
   return (
     <div className="container mx-auto px-10">
       <TargetSection
@@ -55,8 +29,13 @@ function App() {
         setTargets={setTargets}
       />
       <PositionSection
-        positions={[...portfolio_positions, unallocated]}
+        targets={targets}
+        positions={positions}
         setPositions={setPositions}
+      />
+      <TradeSection 
+        targets={targets}
+        positions={positions}
       />
     </div>
   );

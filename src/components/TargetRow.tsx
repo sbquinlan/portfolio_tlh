@@ -17,13 +17,13 @@ function TargetRow({ target, onSelectTarget, onDeleteTarget }: TProps) {
     >
       <div className="flex-1 overflow-hidden">
         <div className="overflow-hidden whitespace-nowrap overflow-ellipsis">
-          <span className="text-sm font-semibold">{target.tickers.join(', ')}</span>
-          <span className="text-sm text-gray-500 ml-2">{target.name}</span>
+          <span className="text-sm font-semibold">{target.name}</span>
+          <span className="text-sm text-gray-500 ml-2">{target.tickers.join(', ')}</span>
         </div>
         {/* future direct indexing control */}
       </div>
-      <span className="text-lg border-gray-500 px-2 py-1">
-        {target.weight}%
+      <span className="text-sm font-semibold border-gray-500">
+        {target.weight * 100}%
       </span>
       <button aria-label='Delete' onClick={priv_onDelete}>
         <Xmark className='w-5 h-5' />

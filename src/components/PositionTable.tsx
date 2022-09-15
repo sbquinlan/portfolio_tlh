@@ -2,7 +2,6 @@ import React, { ReactNode } from 'react';
 
 import {
   IKeyable,
-  TableColumn,
   StringColumn,
   NumberColumn,
   TSortableTableChildProps,
@@ -13,6 +12,7 @@ import { DisplayTargetState } from '../types/display';
 import { AccountPosition } from '../types/portfolio';
 import formatDollas from '../lib/formatDollas';
 import { CollapsibleTable, TCollapsibleNestedChildProps } from '../lib/CollapsibleTable';
+import { TargetPosition } from '../types/targets';
 class MoneyColumn<TRow extends IKeyable> extends NumberColumn<TRow> {
   constructor(
     label: string,
@@ -26,32 +26,6 @@ class MoneyColumn<TRow extends IKeyable> extends NumberColumn<TRow> {
   }
 }
 
-const TARGET_COLUMNS = [
-  new StringColumn<DisplayTargetState>(
-    'Name',
-    (r) => r.name,
-  ),
-  new MoneyColumn<DisplayTargetState>(
-    'Value',
-    (r) => r.value,
-  ),
-  new MoneyColumn<DisplayTargetState>(
-    'Target',
-    (_) => 0,
-  ),
-  new MoneyColumn<DisplayTargetState>(
-    'Uplots',
-    (r) => r.uplots,
-  ),
-  new MoneyColumn<DisplayTargetState>(
-    'Downlots',
-    (r) => r.downlots,
-  ),
-  new MoneyColumn<DisplayTargetState>(
-    'Net',
-    (r) => r.uplots + r.downlots,
-  ),
-];
 const NESTED_COLUMNS = [
   new StringColumn<AccountPosition>(
     'Symbol',
@@ -61,22 +35,17 @@ const NESTED_COLUMNS = [
     'Value',
     (r) => r.value,
   ),
-  // placeholder for "target" which doesn't exist here
-  new TableColumn(
-    'Target',
-    () => '--'
+  new MoneyColumn<AccountPosition>(
+    'Profit',
+    (r) => r.gain,
   ),
   new MoneyColumn<AccountPosition>(
-    'Uplots',
-    (r) => r.uplots,
-  ),
-  new MoneyColumn<AccountPosition>(
-    'Downlots',
-    (r) => r.downlots,
+    'Loss',
+    (r) => r.loss,
   ),
   new MoneyColumn<AccountPosition>(
     'Net',
-    (r) => r.uplots + r.downlots,
+    (r) => r.loss + r.gain,
   ),
 ]
 
@@ -101,7 +70,7 @@ function TargetTableFooter({
 }: TSortableTableChildProps<DisplayTargetState>) {
   return (
     <tfoot>
-      <tr className="border-t-2">
+      <tr className="bg-gray-200">
         <td key='chevy' />
         {cols.map(c => (
           c.label === 'Name' 
@@ -143,6 +112,7 @@ function PositionTableBody({
 function NestedPositionTable({
   row
 }: TCollapsibleNestedChildProps<DisplayTargetState>) {
+  if (!row.holdings.length) return null;
   return (
     <SortableTable
       rows={row.holdings}
@@ -153,13 +123,63 @@ function NestedPositionTable({
 }
 
 type TProps = {
-  positions: DisplayTargetState[];
+  positions: Map<string, AccountPosition>,
+  targets: Map<string, TargetPosition>,
 };
-function PositionTable({ positions }: TProps) {  
+function PositionTable({ positions, targets }: TProps) {  
+  const all_positions = [...positions.values()];
+  const all_targets = [...targets.values()];
+  const total_value = all_positions.reduce<number>((sum, p) => sum + p.value, 0);
+  const TARGET_COLUMNS = [
+    new StringColumn<DisplayTargetState>(
+      'Name',
+      (r) => r.target.name,
+    ),
+    new MoneyColumn<DisplayTargetState>(
+      'Value',
+      (r) => r.holdings.reduce<number>((sum, p) => sum + p.value, 0),
+    ),
+    new MoneyColumn<DisplayTargetState>(
+      'Target',
+      (r) => r.target.weight * total_value,
+    ),
+    new MoneyColumn<DisplayTargetState>(
+      'Profit',
+      (r) => r.holdings.reduce<number>((sum, p) => sum + p.gain, 0),
+    ),
+    new MoneyColumn<DisplayTargetState>(
+      'Loss',
+      (r) => r.holdings.reduce<number>((sum, p) => sum + p.loss, 0),
+    ),
+    new MoneyColumn<DisplayTargetState>(
+      'Net',
+      (r) => r.holdings.reduce<number>((sum, p) => sum + p.loss + p.gain, 0),
+    ),
+  ];
+
+  const portfolio_positions = all_targets.reduce<DisplayTargetState[]>(
+    (acc, target) => acc.concat(
+      new DisplayTargetState(
+        target,
+        target.tickers
+          .map(t => positions.get(t))
+          .filter((n): n is AccountPosition => n !== undefined)
+      )
+    ),
+    []
+  );
+  const allocated_tickers = all_targets.reduce<string[]>(
+    (acc, next) => acc.concat(next.tickers),
+    []
+  );
+  const unallocated = new DisplayTargetState(
+    new TargetPosition(['unallocated'], 'Unallocated Positions', 0),
+    all_positions.filter(p => !~allocated_tickers.indexOf(p.ticker))
+  );
   return (
     <CollapsibleTable
       className="table-auto w-full border border-black"
-      rows={positions}
+      rows={[... portfolio_positions, unallocated]}
       cols={TARGET_COLUMNS}
       fragmentComponent={TargetTableRowFragment}
       nestedComponent={NestedPositionTable}
