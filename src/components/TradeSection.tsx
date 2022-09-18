@@ -2,16 +2,17 @@ import { useMemo, useState } from 'react';
 import formatDollas from '../lib/formatDollas';
 import { rank_options } from '../lib/string_search';
 import { Tokenizer } from '../lib/Tokenizer';
-import { AccountPosition } from '../types/portfolio';
-import { TargetPosition } from '../types/targets';
 import TickerTokenList from './TickerTokenList';
 import TickerTypeaheadList from './TickerTypeaheadList';
+import { AccountPosition } from '../types/portfolio';
+import { TargetPosition } from '../types/targets';
+import { useAppSelector } from '../types/store';
 
 type TProps = {
-  targets: Map<string, TargetPosition>
-  positions: Map<string, AccountPosition>
 };
-function TradeSection({ targets, positions }: TProps) {
+function TradeSection({ }: TProps) {
+  const { targets, positions } = useAppSelector(state => state);
+
   const [wash_sale_search, setWashSaleSearch] = useState('');
   const [wash_sale, setWashSale] = useState<string[]>([]);
 
@@ -22,7 +23,7 @@ function TradeSection({ targets, positions }: TProps) {
     all_positions,
     all_tickers,
   } = useMemo(() => {
-    const all_positions = [... positions.values()];
+    const all_positions = Object.values(positions);
     return {
       all_positions,
       all_tickers: all_positions.reduce<string[]>(
@@ -36,19 +37,19 @@ function TradeSection({ targets, positions }: TProps) {
     .map(l => ({ ticker: l.ticker, value: l.lossvalue, net: l.loss }))
     .concat(
       offset_gains
-        .map(ticker => positions.get(ticker)!)
+        .map(ticker => positions[ticker]!)
         .map(l => ({ ticker: l.ticker, value: l.value, net: l.loss + l.gain }))
     )
   const sell_tickers = sell_orders.map(l => l.ticker)
   const total_liquid = sell_orders.reduce<number>((sum, p) => sum + p.value, 0)
 
-  const adjusted_values = [...targets.values()]
+  const adjusted_values = Object.values(targets)
     .filter(t => t.weight > 0)
     .filter(t => !t.tickers.every(ticker => ~sell_tickers.indexOf(ticker)))
     .map<[TargetPosition, number]>(
       t => [
         t,
-        t.tickers.map(sym => positions.get(sym))
+        t.tickers.map(sym => positions[sym])
           .filter((p): p is AccountPosition => !!p)
           .reduce((sum, p) => sum + p.value - p.lossvalue, 0)
       ])

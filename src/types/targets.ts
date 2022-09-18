@@ -1,15 +1,27 @@
-import { AccountPosition } from './portfolio';
+import { createSlice } from '@reduxjs/toolkit'
+import type { PayloadAction } from '@reduxjs/toolkit'
+import { IKeyable } from '../lib/SortableTable';
+import { v4 as uuid } from 'uuid';
 
-// "Portfolio Targets" define what the portfolio should hold.
-export class TargetPosition {
-  constructor(
-    public readonly tickers: string[], 
-    public readonly name: string,
-    public readonly weight: number,
-    public positions: AccountPosition[] = [],
-  ) {}
-
-  public get key(): string {
-    return this.name;
-  }
+export interface TargetPosition extends IKeyable {
+  tickers: string[];
+  name: string;
+  weight: number;
 }
+
+export const targetSlice = createSlice({
+  name: 'target',
+  initialState: {} as Record<string, TargetPosition>,
+  reducers: {
+    removeTarget(state, { payload: target }: PayloadAction<TargetPosition>) {
+      delete state[target.key]
+    },
+    saveTarget(state, { payload: target }: PayloadAction<TargetPosition>) {
+      target.key = target.key ?? uuid();
+      state[target.key] = target;
+    }
+  }
+})
+
+export const { saveTarget, removeTarget } = targetSlice.actions;
+export default targetSlice.reducer;

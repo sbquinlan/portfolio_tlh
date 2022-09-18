@@ -43,13 +43,13 @@ export function Tokenizer<TDataElement>({
   );
   const TokenList = tokensComponent;
   return (
-    <div className={className}>
+    <div className={`${className} flex flex-row`}>
       <TokenList ref={token_ref} elements={tokens} onRemove={onRemove} />
-      <div className="inline-block">
+      <div className="flex-grow">
         <Typeahead
           {... rest}
           value={value}
-          className="border-none appearance-none bg-transparent p-0 text-bas focus:outline-none focus:ring-0"
+          className="w-full border-none appearance-none bg-transparent p-0 text-base focus:outline-none focus:ring-0"
           onSelectOption={onAdd}
           onKeyDown={onBackspace}
         />

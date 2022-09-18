@@ -46,53 +46,44 @@ export function Typeahead<TDataElement>({
     }));
   }, [options])
 
-  const _onFocus = useCallback(
-    linkEventHandlers(
-      onFocus,
-      () => { setTrayState(_ => ({ highlight: 0, open: options.length > 0 })) },
-    ),
-    [options]
+  const _onFocus = linkEventHandlers(
+    onFocus,
+    () => { setTrayState(_ => ({ highlight: 0, open: options.length > 0 })) },
   );
-  const _onBlur = useCallback(
-    linkEventHandlers(
-      onBlur,
-      () => { setTrayState(_ => ({ highlight: 0, open: false })) },
-    ),
-    []
+  const _onBlur = linkEventHandlers(
+    onBlur,
+    () => { setTrayState(_ => ({ highlight: 0, open: false })) },
   );
-  const _onKeydown = useCallback(
-    linkEventHandlers(
-      onKeyDown,
-      (e) => {
-        switch (e.key) {
-          case "Escape":
-            setTrayState(_ => ({ highlight: 0, open: false }))
-            break;
-          case "Enter":
-            if (open) {
-              onSelectOption(options[highlight]);
-            }
-            break;
-          case "ArrowDown":
-            setTrayState(({ highlight, open }) => ({ 
-              highlight: open ? (highlight + 1) % options.length : highlight,
-              open,
-            }))
-            break;
-          case "ArrowUp":
-            setTrayState(({ highlight, open }) => ({ 
-              highlight: open ? (highlight + options.length - 1) % options.length: highlight,
-              open,
-            }))
-            break;
-          default: 
-            return;
-        }
-        e.stopPropagation();
-        e.preventDefault();
+  const _onKeydown = linkEventHandlers(
+    onKeyDown, 
+    (e) => {
+      switch (e.key) {
+        case "Escape":
+          setTrayState(_ => ({ highlight: 0, open: false }))
+          break;
+        case "Enter":
+          if (open) {
+            onSelectOption(options[highlight]);
+          }
+          break;
+        case "ArrowDown":
+          setTrayState(({ highlight, open }) => ({ 
+            highlight: open ? (highlight + 1) % options.length : highlight,
+            open,
+          }))
+          break;
+        case "ArrowUp":
+          setTrayState(({ highlight, open }) => ({ 
+            highlight: open ? (highlight + options.length - 1) % options.length: highlight,
+            open,
+          }))
+          break;
+        default: 
+          return;
       }
-    ),
-    [options, highlight]
+      e.stopPropagation();
+      e.preventDefault();
+    }
   );
   
   const TypeaheadList = listComponent;

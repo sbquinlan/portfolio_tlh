@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { TargetPosition } from '../types/targets';
 import { Tokenizer } from '../lib/Tokenizer';
 import { rank_options } from '../lib/string_search';
@@ -59,7 +59,7 @@ export function TargetEditor({ target, saveTarget, clearTarget }: TTargetEditorP
           type="range" 
           min={0} max={100} 
           value={weight} 
-          onChange={e => setWeight(e.target.valueAsNumber)} 
+          onChange={e => setWeight(e.target.valueAsNumber / 100)} 
         />
         <span className='px-2 py-1 text-lg'>{weight}%</span>
       </span>
@@ -71,7 +71,7 @@ export function TargetEditor({ target, saveTarget, clearTarget }: TTargetEditorP
       </button>
       <button 
         className='bg-blue-500 hover:bg-blue-700 text-white font-semibold py-1 px-2 rounded' 
-        onClick={() => saveTarget(new TargetPosition(symbols, name, weight))}
+        onClick={() => saveTarget({ key: target?.key ?? '', tickers: symbols, name, weight })}
       >
         Save
       </button>

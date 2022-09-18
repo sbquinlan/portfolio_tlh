@@ -20,28 +20,28 @@ function loadCSV(file?: File): Promise<any[]> {
   });
 }
 
-export default function AccountUpload({
-  onChange,
-}: {
-  onChange: (p: Map<string, AccountPosition>) => void;
-}) {
+type TProps = {
+  onChange: (p: Record<string, AccountPosition>) => void;
+};
+
+export default function AccountUpload({ onChange }: TProps) {
   async function _onChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files![0];
     if (!file) {
-      onChange(new Map());
+      onChange({});
       return;
     }
 
     const rows: any[] = await loadCSV(file);
-    const positions = rows.reduce(
+    const positions = rows.reduce<Record<string, AccountPosition>>(
       (
-        acc: Map<string, AccountPosition>,
+        acc,
         { Symbol: ticker, FifoPnlUnrealized: pnl, PositionValue: value }
       ) => {
-        const prev = acc.get(ticker);
+        const prev = acc[ticker];
         const float_pnl = parseFloat(pnl);
         const float_value = parseFloat(value)
-        return acc.set(ticker, {
+        acc[ticker] = {
           key: ticker,
           ticker,
           value: float_value + (prev?.value || 0),
@@ -49,9 +49,10 @@ export default function AccountUpload({
           gainvalue: (float_pnl >= 0 ? float_value : 0) + (prev?.gainvalue || 0),
           loss:  Math.min(0, float_pnl) + (prev?.loss || 0),
           lossvalue: (float_pnl < 0 ? float_value : 0) + (prev?.lossvalue || 0),
-        });
+        }
+        return acc;
       },
-      new Map()
+      {}
     );
     onChange(positions);
   }

@@ -12,7 +12,7 @@ import { DisplayTargetState } from '../types/display';
 import { AccountPosition } from '../types/portfolio';
 import formatDollas from '../lib/formatDollas';
 import { CollapsibleTable, TCollapsibleNestedChildProps } from '../lib/CollapsibleTable';
-import { TargetPosition } from '../types/targets';
+import { useAppSelector } from '../types/store';
 class MoneyColumn<TRow extends IKeyable> extends NumberColumn<TRow> {
   constructor(
     label: string,
@@ -123,13 +123,36 @@ function NestedPositionTable({
 }
 
 type TProps = {
-  positions: Map<string, AccountPosition>,
-  targets: Map<string, TargetPosition>,
 };
-function PositionTable({ positions, targets }: TProps) {  
-  const all_positions = [...positions.values()];
-  const all_targets = [...targets.values()];
-  const total_value = all_positions.reduce<number>((sum, p) => sum + p.value, 0);
+function PositionTable({  }: TProps) {  
+  const { total_value, positions } = useAppSelector(({ targets, positions }) => {
+    const all_targets = Object.values(targets)
+    const portfolio_positions = all_targets.reduce<DisplayTargetState[]>(
+      (acc, target) => acc.concat(
+        new DisplayTargetState(
+          target,
+          target.tickers
+            .map(t => positions[t])
+            .filter((n): n is AccountPosition => n !== undefined)
+        )
+      ),
+      []
+    );
+    const allocated_tickers = all_targets.reduce<string[]>(
+      (acc, next) => acc.concat(next.tickers),
+      []
+    );
+    const unallocated = new DisplayTargetState(
+      { key: 'unallocated', tickers: ['unallocated'], name: 'Unallocated Positions', weight: 0 },
+      Object.values(positions).filter(p => !~allocated_tickers.indexOf(p.ticker))
+    );
+    const total_value = Object.values(positions).reduce<number>((sum, p) => sum + p.value, 0);
+    return {
+      total_value,
+      positions: [... portfolio_positions, unallocated]
+    };
+  });
+  
   const TARGET_COLUMNS = [
     new StringColumn<DisplayTargetState>(
       'Name',
@@ -157,29 +180,11 @@ function PositionTable({ positions, targets }: TProps) {
     ),
   ];
 
-  const portfolio_positions = all_targets.reduce<DisplayTargetState[]>(
-    (acc, target) => acc.concat(
-      new DisplayTargetState(
-        target,
-        target.tickers
-          .map(t => positions.get(t))
-          .filter((n): n is AccountPosition => n !== undefined)
-      )
-    ),
-    []
-  );
-  const allocated_tickers = all_targets.reduce<string[]>(
-    (acc, next) => acc.concat(next.tickers),
-    []
-  );
-  const unallocated = new DisplayTargetState(
-    new TargetPosition(['unallocated'], 'Unallocated Positions', 0),
-    all_positions.filter(p => !~allocated_tickers.indexOf(p.ticker))
-  );
+  
   return (
     <CollapsibleTable
       className="table-auto w-full border border-black"
-      rows={[... portfolio_positions, unallocated]}
+      rows={positions}
       cols={TARGET_COLUMNS}
       fragmentComponent={TargetTableRowFragment}
       nestedComponent={NestedPositionTable}
