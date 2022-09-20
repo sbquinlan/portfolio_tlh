@@ -16,8 +16,10 @@ export const targetSlice = createSlice({
     removeTarget(state, { payload: target }: PayloadAction<TargetPosition>) {
       delete state[target.key]
     },
-    saveTarget(state, { payload: target }: PayloadAction<TargetPosition>) {
-      target.key = target.key ?? uuid();
+    saveTarget(state, { payload: target }: PayloadAction<Omit<TargetPosition, 'key'> | TargetPosition>) {
+      if (!('key' in target)) {
+        target = { key: uuid(), ... target }
+      }
       state[target.key] = target;
     }
   }

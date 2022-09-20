@@ -3,8 +3,36 @@ import { configureStore } from '@reduxjs/toolkit';
 import targets from './targets';
 import positions from './portfolio';
 
+export const LS_KEY = 'RDX_STATE';
+
+function loadState() {
+  try {
+    const serialized = localStorage.getItem(LS_KEY);
+    if (!serialized) return undefined;
+    const targets = JSON.parse(serialized);
+    return { targets };
+  } catch (e: any) {
+    console.error(e);
+    return undefined;
+  }
+}
+
+async function saveState({ targets }: RootState) {
+  try {
+    const serialized = JSON.stringify(targets);
+    localStorage.setItem(LS_KEY, serialized);
+  } catch (e: any) {
+    console.error(e);
+  }
+}
+
 export const store = configureStore({
-  reducer: { targets, positions }
+  reducer: { targets, positions },
+  preloadedState: loadState(),
+})
+
+store.subscribe(() => {
+  saveState(store.getState());
 })
 
 export type RootState = ReturnType<typeof store.getState>;

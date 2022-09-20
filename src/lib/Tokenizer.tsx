@@ -45,7 +45,7 @@ export function Tokenizer<TDataElement>({
   return (
     <div className={`${className} flex flex-row`}>
       <TokenList ref={token_ref} elements={tokens} onRemove={onRemove} />
-      <div className="flex-grow">
+      <div className="flex-1">
         <Typeahead
           {... rest}
           value={value}

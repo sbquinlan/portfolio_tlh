@@ -83,7 +83,7 @@ function TradeSection({ }: TProps) {
           <Tokenizer
             aria-label="Wash Sale"
             placeholder="Previously Sold"
-            className="flex-grow form-input mt-0 mb-1 px-2 py-1 border-0 border-b-2 focus:ring-0 cursor-text"
+            className="flex-grow form-input mt-0 mb-1 px-2 py-1 border-0 border-b-2 focus-within:border-blue-600 focus:ring-0 cursor-text"
             options={rank_options(wash_sale_search, all_tickers, wash_sale)}
             value={wash_sale_search}
             onChange={e => setWashSaleSearch(e.target.value)}
@@ -100,7 +100,7 @@ function TradeSection({ }: TProps) {
           <Tokenizer
             aria-label="Close Position"
             placeholder="Close Position"
-            className="flex-grow form-input mt-0 mb-1 px-2 py-1 border-0 border-b-2 focus:ring-0 cursor-text"
+            className="flex-grow form-input mt-0 mb-1 px-2 py-1 border-0 border-b-2 focus-within:border-blue-600 focus:ring-0 cursor-text"
             options={rank_options(offset_gains_search, all_tickers, offset_gains)}
             value={offset_gains_search}
             onChange={e => setOffsetGainsSearch(e.target.value)}

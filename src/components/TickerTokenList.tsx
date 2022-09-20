@@ -5,7 +5,7 @@ import { TTokenListProps } from "../lib/Tokenizer";
 const TickerTokenList = React.forwardRef<HTMLButtonElement | null, TTokenListProps<string>>(
   ({ elements, onRemove }, ref) => {
     return (
-      <span className="inline">
+      <span className="">
         {elements.map((elm, i) => {
           return (
             <button

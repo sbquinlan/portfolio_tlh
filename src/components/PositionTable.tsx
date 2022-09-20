@@ -122,8 +122,7 @@ function NestedPositionTable({
   )
 }
 
-type TProps = {
-};
+type TProps = { };
 function PositionTable({  }: TProps) {  
   const { total_value, positions } = useAppSelector(({ targets, positions }) => {
     const all_targets = Object.values(targets)
@@ -180,7 +179,6 @@ function PositionTable({  }: TProps) {
     ),
   ];
 
-  
   return (
     <CollapsibleTable
       className="table-auto w-full border border-black"
