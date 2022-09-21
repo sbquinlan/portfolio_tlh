@@ -1,5 +1,5 @@
 import React, { ReactNode, SetStateAction, useState } from 'react';
-import { Down, Up } from '../lib/icons';
+import { Down, Up } from './icons';
 
 export interface IKeyable { key: string };
 export class TableColumn<TRow extends IKeyable, TValue extends ReactNode> implements IKeyable {
@@ -151,7 +151,7 @@ export function SortableTable<TRow extends IKeyable>({
   return (
     <table className="w-full table-auto" { ... rest }>
       <SortableTableHeader
-        className="border-b border-black"
+        className="border-b border-black cursor-pointer"
         cols={cols}
         sort={sort}
         setSort={setSort}

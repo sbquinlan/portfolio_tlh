@@ -1,11 +1,11 @@
 import { useEffect, useMemo, useState } from 'react';
-import { TargetPosition } from '../types/targets';
-import { Tokenizer } from '../lib/Tokenizer';
+import { TargetPosition } from '../data/targets';
+import { Tokenizer } from '../ui/Tokenizer';
 import { rank_options } from '../lib/string_search';
 import TickerTypeaheadList from './TickerTypeaheadList';
 import TickerTokenList from './TickerTokenList';
+import TICKERS from '../funds.json';
 
-const TICKERS = ['SCHG', 'VCITX', 'VIG', 'SCHD', 'VEA', 'SCHF', 'IEMG', 'VWO', 'VB', 'F', 'AAL'];
 
 type TTargetEditorProps = {
   target: TargetPosition | undefined,
@@ -13,17 +13,22 @@ type TTargetEditorProps = {
   clearTarget: () => void,
 };
 export function TargetEditor({ target: selected, saveTarget, clearTarget }: TTargetEditorProps) {
-  const [symbolSearch, setSymbolSearch] = useState('');
+  const [symbol_search, setSymbolSearch] = useState('');
   const [target_draft, setTargetDraft] = useState<Omit<TargetPosition, 'key'>>(selected ?? { weight: 0, name: '', tickers: [] });
-
+  
   useEffect(() => {
     setTargetDraft(selected ?? { weight: 0, name: '', tickers: [] });
   }, [selected])
   
   const options = useMemo(() => {
-    if (symbolSearch.length == 0) return [];
-    return rank_options(symbolSearch, TICKERS, target_draft.tickers ?? []);
-  }, [symbolSearch, target_draft.tickers])
+    if (symbol_search.length == 0) return [];
+    return rank_options(
+      symbol_search.toUpperCase(), 
+      TICKERS, 
+      target_draft.tickers ?? [],
+      t => t.ticker
+    );
+  }, [symbol_search, target_draft.tickers])
   const display_weight = Math.round((target_draft.weight ?? 0) * 100)
   return (
     <div className='flex flex-row items-stretch gap-4 h-10 w-full mb-2 text-sm'>
@@ -32,15 +37,30 @@ export function TargetEditor({ target: selected, saveTarget, clearTarget }: TTar
         placeholder="Ticker(s)"
         className="flex-grow form-input mt-0 mb-1 px-2 py-1 border-0 border-b-2 focus-within:border-blue-600 focus:ring-0 cursor-text"
         options={options}
-        value={symbolSearch}
+        value={symbol_search}
         onChange={e => {
           setSymbolSearch(e.target.value)
         }}
         tokens={target_draft.tickers ?? []}
-        onTokensChange={state => {
-          const tickers = state instanceof Function ? state(target_draft.tickers) : state;
-          setTargetDraft({ ... target_draft, tickers })
-          setSymbolSearch('')
+        onSelectOption={(option: { ticker: string, name: string }) => {
+          setTargetDraft(draft => ({ 
+            ... draft, 
+            tickers: draft.tickers.concat([option.ticker])
+          }))
+          setSymbolSearch('');
+        }}
+        onSelectCustom={(custom) => {
+          setTargetDraft(draft => ({
+            ... draft,
+            tickers: [... (new Set(draft.tickers.concat([custom]))).values()]
+          }))
+          setSymbolSearch('');
+        }}
+        onRemoveToken={(ticker: string) => {
+          setTargetDraft(draft => ({ 
+            ... draft, 
+            tickers: draft.tickers.filter(t => t !== ticker)
+          }))
         }}
         listComponent={TickerTypeaheadList}
         tokensComponent={TickerTokenList}

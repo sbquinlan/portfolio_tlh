@@ -7,12 +7,12 @@ import {
   TSortableTableChildProps,
   TSortableTableRowProps,
   SortableTable
-} from '../lib/SortableTable';
-import { DisplayTargetState } from '../types/display';
-import { AccountPosition } from '../types/portfolio';
-import formatDollas from '../lib/formatDollas';
-import { CollapsibleTable, TCollapsibleNestedChildProps } from '../lib/CollapsibleTable';
-import { useAppSelector } from '../types/store';
+} from '../ui/SortableTable';
+import { DisplayTargetState } from '../data/display';
+import { AccountPosition } from '../data/portfolio';
+import formatDollas from '../lib/format_dollas';
+import { CollapsibleTable, TCollapsibleNestedChildProps } from '../ui/CollapsibleTable';
+import { useAppSelector } from '../data/store';
 class MoneyColumn<TRow extends IKeyable> extends NumberColumn<TRow> {
   constructor(
     label: string,

@@ -1,6 +1,6 @@
 import { TargetPosition } from './targets';
 import { AccountPosition } from './portfolio';
-import { IKeyable } from '../lib/SortableTable';
+import { IKeyable } from '../ui/SortableTable';
 
 // Pairing of a target and the current
 export class DisplayTargetState implements IKeyable {

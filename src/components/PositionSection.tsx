@@ -1,7 +1,7 @@
-import { useAppDispatch } from '../types/store';
+import { useAppDispatch } from '../data/store';
 import AccountUpload from './AccountUpload';
 import PositionTable from './PositionTable';
-import { loadPositions } from '../types/portfolio'
+import { loadPositions } from '../data/portfolio'
 
 type TProps = {
 };

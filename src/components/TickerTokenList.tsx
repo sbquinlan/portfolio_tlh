@@ -1,6 +1,6 @@
 import React from "react";
-import { Xmark } from "../lib/icons";
-import { TTokenListProps } from "../lib/Tokenizer";
+import { Xmark } from "../ui/icons";
+import { TTokenListProps } from "../ui/Tokenizer";
 
 const TickerTokenList = React.forwardRef<HTMLButtonElement | null, TTokenListProps<string>>(
   ({ elements, onRemove }, ref) => {

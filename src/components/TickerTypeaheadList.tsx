@@ -1,12 +1,12 @@
-import { TTypeaheadListProps } from "../lib/Typeahead";
+import { TTypeaheadListProps } from "../ui/Typeahead";
 
-export default function TickerTypeaheadList({ 
+export default function TickerTypeaheadList<TDataElement extends string | { ticker: string, name: string }>({ 
   'aria-label': label,
   open,
   options,
   highlighted,
   onSelectOption,
-}: TTypeaheadListProps<string>) {
+}: TTypeaheadListProps<TDataElement>) {
   if (!open) return null
   return (
     <ul 
@@ -31,7 +31,7 @@ export default function TickerTypeaheadList({
           ].join(' ')}
         >
           <span className="block truncate">
-            {o}
+            {typeof o === 'string' ? o : o.ticker}
           </span>
         </li>
       ))}

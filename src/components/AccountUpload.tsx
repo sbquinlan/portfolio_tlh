@@ -1,7 +1,7 @@
 import Papa from 'papaparse';
 import React from 'react';
 
-import type { AccountPosition } from '../types/portfolio';
+import type { AccountPosition } from '../data/portfolio';
 
 function loadCSV(file?: File): Promise<any[]> {
   if (!file) return Promise.resolve([]);

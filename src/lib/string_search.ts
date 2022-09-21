@@ -19,13 +19,18 @@ export function score(search: string, option: string): number {
   return min_edit_distance(search, option);
 }
 
-export function rank_options(search: string, all: string[], selected: string[]) {
+export function rank_options<TOption>(
+  search: string, 
+  all: TOption[], 
+  filter: string[], 
+  value: (t: TOption) => string
+) {
   if (search.length == 0) return [];
   return all
     // keep it unique
-    .filter(t => !~selected.indexOf(t))
+    .filter(t => !~filter.indexOf(value(t)))
     // score
-    .map(t => [t, score(search, t)] as [string, number])
+    .map(t => [t, score(search, value(t))] as [TOption, number])
     // filter
     .filter(([_, s]) => s < 3)
     // sort

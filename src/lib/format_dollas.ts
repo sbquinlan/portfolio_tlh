@@ -1,4 +1,4 @@
-export default function formatDollas(dollas: number) {
+export default function format_dollas(dollas: number) {
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'USD',

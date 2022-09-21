@@ -1,6 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit'
 import type { PayloadAction } from '@reduxjs/toolkit'
-import { IKeyable } from '../lib/SortableTable';
+import { IKeyable } from '../ui/SortableTable';
 import { v4 as uuid } from 'uuid';
 
 export interface TargetPosition extends IKeyable {

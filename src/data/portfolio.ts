@@ -1,7 +1,7 @@
 import { createSlice } from '@reduxjs/toolkit'
 import type { PayloadAction } from '@reduxjs/toolkit'
 
-import { IKeyable } from '../lib/SortableTable';
+import { IKeyable } from '../ui/SortableTable';
 
 // From the lots on the account
 export interface AccountPosition extends IKeyable {

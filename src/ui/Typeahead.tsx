@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useRef, useState } from "react";
-import { linkEventHandlers } from "../lib/linkEventHandlers";
+import { useEffect, useRef, useState } from "react";
+import link_event_handlers from "./link_event_handlers";
 
 export type TTypeaheadListProps<TDataElement> = {
   "aria-label": string,
@@ -17,6 +17,7 @@ export type TTypeaheadProps<TDataElement> = {
   onChange: React.ChangeEventHandler<HTMLInputElement>,
   options: TDataElement[],
   onSelectOption: (d: TDataElement) => void,
+  onSelectCustom: (value: string) => void,
 } & React.InputHTMLAttributes<HTMLInputElement>;
 
 export function Typeahead<TDataElement>({ 
@@ -33,6 +34,7 @@ export function Typeahead<TDataElement>({
   onChange,
   onKeyDown,
   onSelectOption,
+  onSelectCustom,
   ... rest
 }: TTypeaheadProps<TDataElement>) {
   const input_ref = useRef<HTMLInputElement>(null);
@@ -46,15 +48,15 @@ export function Typeahead<TDataElement>({
     }));
   }, [options])
 
-  const _onFocus = linkEventHandlers(
+  const _onFocus = link_event_handlers(
     onFocus,
     () => { setTrayState(_ => ({ highlight: 0, open: options.length > 0 })) },
   );
-  const _onBlur = linkEventHandlers(
+  const _onBlur = link_event_handlers(
     onBlur,
     () => { setTrayState(_ => ({ highlight: 0, open: false })) },
   );
-  const _onKeydown = linkEventHandlers(
+  const _onKeydown = link_event_handlers(
     onKeyDown, 
     (e) => {
       switch (e.key) {
@@ -64,6 +66,8 @@ export function Typeahead<TDataElement>({
         case "Enter":
           if (open) {
             onSelectOption(options[highlight]);
+          } else if (value) {
+            onSelectCustom(value as string);
           }
           break;
         case "ArrowDown":

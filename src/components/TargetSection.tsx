@@ -1,13 +1,15 @@
 import { useState } from 'react';
-import { useAppSelector, useAppDispatch } from '../types/store';
-import { TargetPosition, removeTarget, saveTarget } from '../types/targets';
+import { useAppSelector, useAppDispatch } from '../data/store';
+import { TargetPosition, removeTarget, saveTarget } from '../data/targets';
 import TargetRow from './TargetRow';
 import { TargetEditor } from './TargetEditor';
 
 type TProps = {
 };
 function TargetSection({}: TProps) {
-  const targets = useAppSelector(({ targets }) => targets);
+  const targets = useAppSelector(
+    ({ targets }) => Object.values(targets).sort((a, b) => b.weight - a.weight)
+  );
   const dispatch = useAppDispatch();
   const [selected, setSelected] = useState<TargetPosition | undefined>(undefined);
   return (
@@ -24,7 +26,7 @@ function TargetSection({}: TProps) {
         clearTarget={() => setSelected(undefined)}
       />
       <ul className="border border-gray-500">
-        {Object.values(targets).map((p) => (
+        {targets.map((p) => (
           <TargetRow
             key={p.key}
             target={p}

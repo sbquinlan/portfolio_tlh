@@ -1,12 +1,12 @@
 import { useMemo, useState } from 'react';
-import formatDollas from '../lib/formatDollas';
+import formatDollas from '../lib/format_dollas';
 import { rank_options } from '../lib/string_search';
-import { Tokenizer } from '../lib/Tokenizer';
+import { Tokenizer } from '../ui/Tokenizer';
 import TickerTokenList from './TickerTokenList';
 import TickerTypeaheadList from './TickerTypeaheadList';
-import { AccountPosition } from '../types/portfolio';
-import { TargetPosition } from '../types/targets';
-import { useAppSelector } from '../types/store';
+import { AccountPosition } from '../data/portfolio';
+import { TargetPosition } from '../data/targets';
+import { useAppSelector } from '../data/store';
 
 type TProps = {
 };
@@ -40,6 +40,7 @@ function TradeSection({ }: TProps) {
         .map(ticker => positions[ticker]!)
         .map(l => ({ ticker: l.ticker, value: l.value, net: l.loss + l.gain }))
     )
+    .sort((a, b) => b.value - a.value);
   const sell_tickers = sell_orders.map(l => l.ticker)
   const total_liquid = sell_orders.reduce<number>((sum, p) => sum + p.value, 0)
 
@@ -71,7 +72,8 @@ function TradeSection({ }: TProps) {
         Math.min(catchup_amount, total_liquid) * p + 
           Math.max(0, total_liquid - catchup_amount) * t.weight
       ])
-    .filter(([_, amt]) => amt > 0);
+    .filter(([_, amt]) => amt > 0)
+    .sort(([_, a], [__, b]) => b - a);
   
   return (
     <div>
@@ -84,13 +86,16 @@ function TradeSection({ }: TProps) {
             aria-label="Wash Sale"
             placeholder="Previously Sold"
             className="flex-grow form-input mt-0 mb-1 px-2 py-1 border-0 border-b-2 focus-within:border-blue-600 focus:ring-0 cursor-text"
-            options={rank_options(wash_sale_search, all_tickers, wash_sale)}
+            options={rank_options(wash_sale_search.toUpperCase(), all_tickers, wash_sale, t => t)}
             value={wash_sale_search}
             onChange={e => setWashSaleSearch(e.target.value)}
             tokens={wash_sale}
-            onTokensChange={(t) => {
+            onRemoveToken={(d) => {
+              setWashSale(tickers => tickers.filter(t => t !== d))
+            }}
+            onSelectOption={(a) => {
+              setWashSale(tickers => tickers.concat([a]))
               setWashSaleSearch('')
-              setWashSale(t)
             }}
             listComponent={TickerTypeaheadList}
             tokensComponent={TickerTokenList}
@@ -101,13 +106,16 @@ function TradeSection({ }: TProps) {
             aria-label="Close Position"
             placeholder="Close Position"
             className="flex-grow form-input mt-0 mb-1 px-2 py-1 border-0 border-b-2 focus-within:border-blue-600 focus:ring-0 cursor-text"
-            options={rank_options(offset_gains_search, all_tickers, offset_gains)}
+            options={rank_options(offset_gains_search.toUpperCase(), all_tickers, offset_gains, t => t)}
             value={offset_gains_search}
             onChange={e => setOffsetGainsSearch(e.target.value)}
             tokens={offset_gains}
-            onTokensChange={(t) => {
+            onRemoveToken={(d) => {
+              setOffsetGains(tickers => tickers.filter(t => t !== d))
+            }}
+            onSelectOption={(a) => {
+              setOffsetGains(tickers => tickers.concat([a]))
               setOffsetGainsSearch('')
-              setOffsetGains(t)
             }}
             listComponent={TickerTypeaheadList}
             tokensComponent={TickerTokenList}

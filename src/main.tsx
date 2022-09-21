@@ -1,5 +1,5 @@
 import App from './App';
-import { store } from './types/store'
+import { store } from './data/store'
 
 import React from 'react';
 import { Provider } from 'react-redux'

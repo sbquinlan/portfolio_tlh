@@ -1,4 +1,4 @@
-import { Down, Right } from '../lib/icons.js';
+import { Down, Right } from './icons.js';
 
 type ChevyProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
   open?: boolean;
