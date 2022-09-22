@@ -1,15 +1,15 @@
-import React, { useRef } from "react"
-import { TTypeaheadProps, Typeahead } from "./Typeahead"
+import React, { useRef } from 'react';
+import { TTypeaheadProps, Typeahead } from './Typeahead';
 
 export type TTokenListProps<TDataElement> = {
-  elements: TDataElement[],
-  onRemove: (r: TDataElement) => void,
+  elements: TDataElement[];
+  onRemove: (r: TDataElement) => void;
 } & React.RefAttributes<HTMLButtonElement | null>;
 
 export type TTokenizerProps<TTypeaheadData, TTokenData> = {
-  tokensComponent: React.FC<TTokenListProps<TTokenData>>
-  tokens: TTokenData[],
-  onRemoveToken: (t: TTokenData) => void,
+  tokensComponent: React.FC<TTokenListProps<TTokenData>>;
+  tokens: TTokenData[];
+  onRemoveToken: (t: TTokenData) => void;
 } & TTypeaheadProps<TTypeaheadData>;
 export function Tokenizer<TTypeaheadData, TTokenData>({
   className,
@@ -17,7 +17,7 @@ export function Tokenizer<TTypeaheadData, TTokenData>({
   value,
   tokens,
   onRemoveToken,
-  ... rest
+  ...rest
 }: TTokenizerProps<TTypeaheadData, TTokenData>) {
   const token_ref = useRef<HTMLButtonElement>(null);
   const TokenList = tokensComponent;
@@ -26,7 +26,7 @@ export function Tokenizer<TTypeaheadData, TTokenData>({
       <TokenList ref={token_ref} elements={tokens} onRemove={onRemoveToken} />
       <div className="flex-1">
         <Typeahead
-          {... rest}
+          {...rest}
           value={value}
           className="w-full border-none appearance-none bg-transparent p-0 text-base focus:outline-none focus:ring-0"
           onKeyDown={(e: React.KeyboardEvent) => {

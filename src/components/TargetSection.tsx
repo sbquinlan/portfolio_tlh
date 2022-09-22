@@ -7,19 +7,21 @@ import SectionCard from './SectionCard';
 
 type TProps = {};
 function TargetSection({}: TProps) {
-  const targets = useAppSelector(
-    ({ targets }) => Object.values(targets).sort((a, b) => b.weight - a.weight)
+  const targets = useAppSelector(({ targets }) =>
+    Object.values(targets).sort((a, b) => b.weight - a.weight)
   );
   const dispatch = useAppDispatch();
-  const [selected, setSelected] = useState<TargetPosition | undefined>(undefined);
+  const [selected, setSelected] = useState<TargetPosition | undefined>(
+    undefined
+  );
   return (
-    <SectionCard title='Targets'>
-      <div className='flex flex-col max-h-full'>
-        <TargetEditor 
-          target={selected} 
-          saveTarget={t => { 
-            dispatch(saveTarget(t))
-            setSelected(undefined)
+    <SectionCard title="Targets">
+      <div className="flex flex-col max-h-full">
+        <TargetEditor
+          target={selected}
+          saveTarget={(t) => {
+            dispatch(saveTarget(t));
+            setSelected(undefined);
           }}
           clearTarget={() => setSelected(undefined)}
         />
@@ -29,7 +31,7 @@ function TargetSection({}: TProps) {
               key={p.key}
               target={p}
               onSelectTarget={setSelected}
-              onDeleteTarget={t => dispatch(removeTarget(t))}
+              onDeleteTarget={(t) => dispatch(removeTarget(t))}
             />
           ))}
         </ul>

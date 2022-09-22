@@ -11,7 +11,7 @@ import {
 import Chevy from './Chevy';
 
 export type TCollapsibleTableRowProps<TRow extends IKeyable> = {
-  fragmentComponent: React.FC<TSortableTableRowProps<TRow>>
+  fragmentComponent: React.FC<TSortableTableRowProps<TRow>>;
 } & TSortableTableRowProps<TRow>;
 export function CollapsibleTableRow<TRow extends IKeyable>({
   row,
@@ -33,21 +33,19 @@ export function CollapsibleTableRow<TRow extends IKeyable>({
       <RowFragment cols={cols} row={row} />
     </tr>
   );
-  const second_row = children 
-    ? (
-      <tr>
-        <td colSpan={cols.length + 1} className="p-0">
-          <div
-            className={`ease-out duration-400 transition-all overflow-y-auto max-h-60 ${
-              open ? '' : 'h-0'
-            }`}
-          >
-            {children}
-          </div>
-        </td>
-      </tr>
-    )
-    : null;
+  const second_row = children ? (
+    <tr>
+      <td colSpan={cols.length + 1} className="p-0">
+        <div
+          className={`ease-out duration-400 transition-all overflow-y-auto max-h-60 ${
+            open ? '' : 'h-0'
+          }`}
+        >
+          {children}
+        </div>
+      </td>
+    </tr>
+  ) : null;
   return (
     <React.Fragment>
       {first_row}
@@ -57,23 +55,28 @@ export function CollapsibleTableRow<TRow extends IKeyable>({
 }
 
 export type TCollapsibleNestedChildProps<TRow extends IKeyable> = {
-  row: TRow,
-}
+  row: TRow;
+};
 export type TCollapsibleTableBodyProps<TRow extends IKeyable> = {
-  fragmentComponent: React.FC<TSortableTableRowProps<TRow>>
-  nestedComponent: React.FC<TCollapsibleNestedChildProps<TRow>>
-} & TSortableTableChildProps<TRow>
+  fragmentComponent: React.FC<TSortableTableRowProps<TRow>>;
+  nestedComponent: React.FC<TCollapsibleNestedChildProps<TRow>>;
+} & TSortableTableChildProps<TRow>;
 export function CollapsibleTableBody<TRow extends IKeyable>({
   rows,
   cols,
   fragmentComponent,
-  nestedComponent
+  nestedComponent,
 }: TCollapsibleTableBodyProps<TRow>) {
   const NestedComponent = nestedComponent;
   return (
     <tbody>
       {rows.map((r) => (
-        <CollapsibleTableRow key={r.key} row={r} cols={cols} fragmentComponent={fragmentComponent}>
+        <CollapsibleTableRow
+          key={r.key}
+          row={r}
+          cols={cols}
+          fragmentComponent={fragmentComponent}
+        >
           <NestedComponent row={r} />
         </CollapsibleTableRow>
       ))}
@@ -82,10 +85,11 @@ export function CollapsibleTableBody<TRow extends IKeyable>({
 }
 
 export type TCollapsibleTableProps<TRow extends IKeyable> = {
-  fragmentComponent: React.FC<TSortableTableRowProps<TRow>>,
-  nestedComponent: React.FC<TCollapsibleNestedChildProps<TRow>>,
-  footerComponent?: React.FC<TSortableTableChildProps<TRow>>,
-} & TSortableTableChildProps<TRow> & React.TableHTMLAttributes<HTMLTableElement>
+  fragmentComponent: React.FC<TSortableTableRowProps<TRow>>;
+  nestedComponent: React.FC<TCollapsibleNestedChildProps<TRow>>;
+  footerComponent?: React.FC<TSortableTableChildProps<TRow>>;
+} & TSortableTableChildProps<TRow> &
+  React.TableHTMLAttributes<HTMLTableElement>;
 export function CollapsibleTable<TRow extends IKeyable>({
   rows,
   cols,
@@ -93,38 +97,34 @@ export function CollapsibleTable<TRow extends IKeyable>({
   fragmentComponent,
   nestedComponent,
   footerComponent,
-  ... rest
+  ...rest
 }: TCollapsibleTableProps<TRow>) {
   const [sort, setSort] = useState<SortInfo<TRow>>([1, undefined]);
   const [sort_dir, sort_col] = sort;
-  const sorted = rows.sort(
-    (a, b) => sort_dir * (sort_col?.sort(a, b) ?? 0)
-  )
+  const sorted = rows.sort((a, b) => sort_dir * (sort_col?.sort(a, b) ?? 0));
   const cols_for_header = useMemo(() => {
     const new_cols = cols.slice();
     // add header for the chevy cell
-    new_cols.unshift(
-      new TableColumn(' ', () => '')
-    );
+    new_cols.unshift(new TableColumn(' ', () => ''));
     return new_cols;
-  }, [cols])
+  }, [cols]);
 
   const FooterComponent = footerComponent;
   return (
-    <table className="w-full table-auto" { ... rest }>
+    <table className="w-full table-auto" {...rest}>
       <SortableTableHeader
-        className='bg-gray-200 text-sm'
+        className="bg-gray-200 text-sm"
         cols={cols_for_header}
         sort={sort}
         setSort={setSort}
       />
-      <CollapsibleTableBody 
-        cols={cols} 
-        rows={sorted}  
+      <CollapsibleTableBody
+        cols={cols}
+        rows={sorted}
         fragmentComponent={fragmentComponent}
         nestedComponent={nestedComponent}
       />
       {FooterComponent ? <FooterComponent cols={cols} rows={rows} /> : null}
     </table>
-  )
+  );
 }

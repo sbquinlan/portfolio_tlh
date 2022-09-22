@@ -1,5 +1,5 @@
-import { createSlice } from '@reduxjs/toolkit'
-import type { PayloadAction } from '@reduxjs/toolkit'
+import { createSlice } from '@reduxjs/toolkit';
+import type { PayloadAction } from '@reduxjs/toolkit';
 
 import { IKeyable } from '../ui/SortableTable';
 
@@ -17,11 +17,14 @@ export const positionSlice = createSlice({
   name: 'target',
   initialState: {} as Record<string, AccountPosition>,
   reducers: {
-    loadPositions(state, { payload: positions }: PayloadAction<Record<string, AccountPosition>>) {
+    loadPositions(
+      state,
+      { payload: positions }: PayloadAction<Record<string, AccountPosition>>
+    ) {
       Object.assign(state, positions);
     },
-  }
-})
+  },
+});
 
 export const { loadPositions } = positionSlice.actions;
 export default positionSlice.reducer;

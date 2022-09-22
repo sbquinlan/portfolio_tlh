@@ -1,5 +1,5 @@
-import { createSlice } from '@reduxjs/toolkit'
-import type { PayloadAction } from '@reduxjs/toolkit'
+import { createSlice } from '@reduxjs/toolkit';
+import type { PayloadAction } from '@reduxjs/toolkit';
 import { IKeyable } from '../ui/SortableTable';
 import { v4 as uuid } from 'uuid';
 
@@ -14,16 +14,21 @@ export const targetSlice = createSlice({
   initialState: {} as Record<string, TargetPosition>,
   reducers: {
     removeTarget(state, { payload: target }: PayloadAction<TargetPosition>) {
-      delete state[target.key]
+      delete state[target.key];
     },
-    saveTarget(state, { payload: target }: PayloadAction<Omit<TargetPosition, 'key'> | TargetPosition>) {
+    saveTarget(
+      state,
+      {
+        payload: target,
+      }: PayloadAction<Omit<TargetPosition, 'key'> | TargetPosition>
+    ) {
       if (!('key' in target)) {
-        target = { key: uuid(), ... target }
+        target = { key: uuid(), ...target };
       }
       state[target.key] = target;
-    }
-  }
-})
+    },
+  },
+});
 
 export const { saveTarget, removeTarget } = targetSlice.actions;
 export default targetSlice.reducer;

@@ -40,16 +40,17 @@ export default function AccountUpload({ onChange }: TProps) {
       ) => {
         const prev = acc[ticker];
         const float_pnl = parseFloat(pnl);
-        const float_value = parseFloat(value)
+        const float_value = parseFloat(value);
         acc[ticker] = {
           key: ticker,
           ticker,
           value: float_value + (prev?.value || 0),
-          gain:  Math.max(0, float_pnl) + (prev?.gain || 0),
-          gainvalue: (float_pnl >= 0 ? float_value : 0) + (prev?.gainvalue || 0),
-          loss:  Math.min(0, float_pnl) + (prev?.loss || 0),
+          gain: Math.max(0, float_pnl) + (prev?.gain || 0),
+          gainvalue:
+            (float_pnl >= 0 ? float_value : 0) + (prev?.gainvalue || 0),
+          loss: Math.min(0, float_pnl) + (prev?.loss || 0),
           lossvalue: (float_pnl < 0 ? float_value : 0) + (prev?.lossvalue || 0),
-        }
+        };
         return acc;
       },
       {}
@@ -59,15 +60,18 @@ export default function AccountUpload({ onChange }: TProps) {
   const input_ref = useRef<HTMLInputElement>(null);
   return (
     <span>
-      <input ref={input_ref}
+      <input
+        ref={input_ref}
         className="hidden"
         type="file"
         accept="csv"
         onChange={_onChange}
       />
-      <button 
-        className='bg-slate-500 hover:bg-blue-700 text-white text-sm font-semibold py-1 px-4 rounded' 
-        onClick={() => { input_ref.current?.click() }}
+      <button
+        className="bg-slate-500 hover:bg-blue-700 text-white text-sm font-semibold py-1 px-4 rounded"
+        onClick={() => {
+          input_ref.current?.click();
+        }}
       >
         Upload
       </button>
