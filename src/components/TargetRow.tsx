@@ -15,8 +15,8 @@ function TargetRow({ target, onSelectTarget, onDeleteTarget }: TProps) {
       className="flex flex-row select-none items-center border-b border-gray-500 last:border-b-0 px-2 py-1 hover:border-blue-500 hover:bg-blue-300 cursor-pointer"
       onClick={priv_onSelect}
     >
-      <div className="flex-1 overflow-hidden">
-        <div className="overflow-hidden whitespace-nowrap overflow-ellipsis">
+      <div className="flex-1">
+        <div className="truncate">
           <span className="text-sm font-semibold">{target.name}</span>
           <span className="text-sm text-gray-500 ml-2">{target.tickers.join(', ')}</span>
         </div>

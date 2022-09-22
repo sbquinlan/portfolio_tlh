@@ -1,5 +1,6 @@
 import React, { ReactNode, SetStateAction, useState } from 'react';
 import { Down, Up } from './icons';
+import formatDollas from '../lib/format_dollas';
 
 export interface IKeyable { key: string };
 export class TableColumn<TRow extends IKeyable, TValue extends ReactNode> implements IKeyable {
@@ -39,6 +40,18 @@ export class NumberColumn<TRow extends IKeyable> extends SortableColumn<TRow, nu
       getValue, 
       (a: TRow, b: TRow) => getValue(b) - getValue(a)
     )
+  }
+}
+export class MoneyColumn<TRow extends IKeyable> extends NumberColumn<TRow> {
+  constructor(
+    label: string,
+    getValue: (r: TRow) => number,
+  ) {
+    super(label, getValue);
+  }
+
+  getFormattedValue(r: TRow): ReactNode {
+    return formatDollas(this.getValue(r)); 
   }
 }
 
@@ -151,7 +164,7 @@ export function SortableTable<TRow extends IKeyable>({
   return (
     <table className="w-full table-auto" { ... rest }>
       <SortableTableHeader
-        className="border-b border-black cursor-pointer"
+        className="border-b border-black cursor-pointer text-xs"
         cols={cols}
         sort={sort}
         setSort={setSort}

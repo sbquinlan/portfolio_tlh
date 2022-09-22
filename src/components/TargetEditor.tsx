@@ -31,11 +31,10 @@ export function TargetEditor({ target: selected, saveTarget, clearTarget }: TTar
   }, [symbol_search, target_draft.tickers])
   const display_weight = Math.round((target_draft.weight ?? 0) * 100)
   return (
-    <div className='flex flex-row items-stretch gap-4 h-10 w-full mb-2 text-sm'>
-      <Tokenizer
+    <div className='flex-shrink-0 w-full text-sm mb-2'>
+      <Tokenizer className="form-input mt-0 mb-1 px-2 py-1 border-0 border-b-2 focus-within:border-blue-600 focus:ring-0 cursor-text"
         aria-label="tickers"
         placeholder="Ticker(s)"
-        className="flex-grow form-input mt-0 mb-1 px-2 py-1 border-0 border-b-2 focus-within:border-blue-600 focus:ring-0 cursor-text"
         options={options}
         value={symbol_search}
         onChange={e => {
@@ -65,40 +64,42 @@ export function TargetEditor({ target: selected, saveTarget, clearTarget }: TTar
         listComponent={TickerTypeaheadList}
         tokensComponent={TickerTokenList}
       />
-      <input className='flex-grow form-input mt-0 mb-1 px-2 py-1 border-0 border-b-2 focus-within:border-blue-600 focus:ring-0 cursor-text' 
+      <input className='w-full form-input mt-0 mb-2 px-2 py-1 border-0 border-b-2 focus-within:border-blue-600 focus:ring-0 cursor-text' 
         type="text" 
         placeholder='Name' 
         value={target_draft.name}
         onChange={e => setTargetDraft({ ... target_draft, name: e.target.value })}
       />
-      <span className='flex flex-row items-center'>
-        <input 
-          className=''
-          type="range" 
-          min={0} max={100} 
-          value={display_weight} 
-          onChange={e => setTargetDraft({ ... target_draft, weight: (e.target.valueAsNumber / 100) })} 
-        />
-        <span className='w-10 px-2 py-1 text-lg'>{display_weight}%</span>
-      </span>
-      <button 
-        className='bg-slate-500 hover:bg-blue-700 text-white font-semibold py-1 px-2 rounded' 
-        onClick={() => {
-          clearTarget()
-          setTargetDraft({ weight: 0, name: '', tickers: [] })
-        }}
-      >
-        Reset
-      </button>
-      <button 
-        className='bg-blue-500 hover:bg-blue-700 text-white font-semibold py-1 px-2 rounded' 
-        onClick={() => {
-          saveTarget(target_draft)
-          setTargetDraft({ weight: 0, name: '', tickers: [] })
-        }}
-      >
-        Save
-      </button>
+      <div className='flex flex-row items-stretch justify-evenly justify-items-stretch gap-2 h-8'>
+        <span className='flex flex-row items-center'>
+          <input 
+            className=''
+            type="range" 
+            min={0} max={100} 
+            value={display_weight} 
+            onChange={e => setTargetDraft({ ... target_draft, weight: (e.target.valueAsNumber / 100) })} 
+          />
+          <span className='w-10 px-2 py-1 text-lg'>{display_weight}%</span>
+        </span>
+        <button 
+          className='flex-grow bg-slate-500 hover:bg-blue-700 text-white font-semibold py-1 px-1 rounded' 
+          onClick={() => {
+            clearTarget()
+            setTargetDraft({ weight: 0, name: '', tickers: [] })
+          }}
+        >
+          Reset
+        </button>
+        <button 
+          className='flex-grow bg-blue-500 hover:bg-blue-700 text-white font-semibold py-1 px-1 rounded' 
+          onClick={() => {
+            saveTarget(target_draft)
+            setTargetDraft({ weight: 0, name: '', tickers: [] })
+          }}
+        >
+          Save
+        </button>
+      </div>
     </div>
   )
 }

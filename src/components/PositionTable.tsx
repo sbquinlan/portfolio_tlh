@@ -1,30 +1,18 @@
-import React, { ReactNode } from 'react';
+import { Fragment } from 'react';
 
 import {
-  IKeyable,
   StringColumn,
   NumberColumn,
   TSortableTableChildProps,
   TSortableTableRowProps,
-  SortableTable
+  SortableTable,
+  MoneyColumn
 } from '../ui/SortableTable';
 import { DisplayTargetState } from '../data/display';
 import { AccountPosition } from '../data/portfolio';
 import formatDollas from '../lib/format_dollas';
 import { CollapsibleTable, TCollapsibleNestedChildProps } from '../ui/CollapsibleTable';
 import { useAppSelector } from '../data/store';
-class MoneyColumn<TRow extends IKeyable> extends NumberColumn<TRow> {
-  constructor(
-    label: string,
-    getValue: (r: TRow) => number,
-  ) {
-    super(label, getValue);
-  }
-
-  getFormattedValue(r: TRow): ReactNode {
-    return formatDollas(this.getValue(r)); 
-  }
-}
 
 const NESTED_COLUMNS = [
   new StringColumn<AccountPosition>(
@@ -43,10 +31,10 @@ const NESTED_COLUMNS = [
     'Loss',
     (r) => r.loss,
   ),
-  new MoneyColumn<AccountPosition>(
-    'Net',
-    (r) => r.loss + r.gain,
-  ),
+  // new MoneyColumn<AccountPosition>(
+  //   'Net',
+  //   (r) => r.loss + r.gain,
+  // ),
 ]
 
 function TargetTableRowFragment({
@@ -54,13 +42,13 @@ function TargetTableRowFragment({
   cols,
 }: TSortableTableRowProps<DisplayTargetState>) {
   return (
-    <React.Fragment>
+    <Fragment>
       {cols.map(c => (
         <td key={c.key} className={c.label === 'Name' ? 'max-w-0 truncate text-left' : 'text-center text-sm w-24'}>
           {c.getFormattedValue(row)}
         </td>
       ))}
-    </React.Fragment>
+    </Fragment>
   );
 }
 
@@ -86,7 +74,7 @@ function TargetTableFooter({
           )
         ))}
       </tr>
-  </tfoot>
+    </tfoot>
   )
 }
 
@@ -99,7 +87,7 @@ function PositionTableBody({
       {rows.map(r => (
         <tr key={r.key}>
           {cols.map(c => (
-            <td key={c.key} className={c.label === 'Symbol' ? 'max-w-0 truncate text-sm font-medium pl-2' : 'text-center text-xs w-24'}>
+            <td key={c.key} className={c.label === 'Symbol' ? 'max-w-0 truncate text-xs font-medium pl-2' : 'text-center text-xs w-24'}>
               {c.getFormattedValue(r)}
             </td>
           ))}
@@ -115,6 +103,7 @@ function NestedPositionTable({
   if (!row.holdings.length) return null;
   return (
     <SortableTable
+      className='table-auto w-full border-y border-black'
       rows={row.holdings}
       cols={NESTED_COLUMNS}
       bodyComponent={PositionTableBody}
@@ -122,8 +111,8 @@ function NestedPositionTable({
   )
 }
 
-type TProps = { };
-function PositionTable({  }: TProps) {  
+type TProps = {};
+function PositionTable({}: TProps) {  
   const { total_value, positions } = useAppSelector(({ targets, positions }) => {
     const all_targets = Object.values(targets)
     const portfolio_positions = all_targets.reduce<DisplayTargetState[]>(
@@ -173,15 +162,15 @@ function PositionTable({  }: TProps) {
       'Loss',
       (r) => r.holdings.reduce<number>((sum, p) => sum + p.loss, 0),
     ),
-    new MoneyColumn<DisplayTargetState>(
-      'Net',
-      (r) => r.holdings.reduce<number>((sum, p) => sum + p.loss + p.gain, 0),
-    ),
+    // new MoneyColumn<DisplayTargetState>(
+    //   'Net',
+    //   (r) => r.holdings.reduce<number>((sum, p) => sum + p.loss + p.gain, 0),
+    // ),
   ];
 
   return (
     <CollapsibleTable
-      className="table-auto w-full border border-black"
+      className="overflow-auto table-auto max-h-80 w-full text-sm border border-black"
       rows={positions}
       cols={TARGET_COLUMNS}
       fragmentComponent={TargetTableRowFragment}

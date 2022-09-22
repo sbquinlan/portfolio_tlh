@@ -113,7 +113,7 @@ export function CollapsibleTable<TRow extends IKeyable>({
   return (
     <table className="w-full table-auto" { ... rest }>
       <SortableTableHeader
-        className='bg-gray-200'
+        className='bg-gray-200 text-sm'
         cols={cols_for_header}
         sort={sort}
         setSort={setSort}

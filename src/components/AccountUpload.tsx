@@ -1,5 +1,5 @@
 import Papa from 'papaparse';
-import React from 'react';
+import React, { useRef } from 'react';
 
 import type { AccountPosition } from '../data/portfolio';
 
@@ -56,12 +56,21 @@ export default function AccountUpload({ onChange }: TProps) {
     );
     onChange(positions);
   }
+  const input_ref = useRef<HTMLInputElement>(null);
   return (
-    <input
-      className="block text-sm file:mr-4 file:py-2 file:px-4 file:rounded-sm file:border-0 file:text-sm file:font-semibold file:bg-gray-300 hover:file:bg-gray-200"
-      type="file"
-      accept="csv"
-      onChange={_onChange}
-    />
+    <span>
+      <input ref={input_ref}
+        className="hidden"
+        type="file"
+        accept="csv"
+        onChange={_onChange}
+      />
+      <button 
+        className='bg-slate-500 hover:bg-blue-700 text-white text-sm font-semibold py-1 px-4 rounded' 
+        onClick={() => { input_ref.current?.click() }}
+      >
+        Upload
+      </button>
+    </span>
   );
 }

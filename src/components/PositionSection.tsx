@@ -2,20 +2,16 @@ import { useAppDispatch } from '../data/store';
 import AccountUpload from './AccountUpload';
 import PositionTable from './PositionTable';
 import { loadPositions } from '../data/portfolio'
+import SectionCard from './SectionCard';
 
-type TProps = {
-};
-function PositionSection({ }: TProps) {  
+type TProps = {};
+function PositionSection({}: TProps) {  
   
   const dispatch = useAppDispatch();
   return (
-    <div>
-      <div className="flex flex-row items-center py-2 px-4">
-        <h1 className="flex-1 text-lg font-bold">Portfolio</h1>
-        <AccountUpload onChange={(p) => dispatch(loadPositions(p))} />
-      </div>
+    <SectionCard title='Portfolio' header={<AccountUpload onChange={(p) => dispatch(loadPositions(p))} />}>
       <PositionTable />
-    </div>
+    </SectionCard>
   );
 }
 export default PositionSection;
