@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { rank_options } from '../lib/string_search';
-import { Tokenizer } from '../ui/Tokenizer';
+import { Tokenizer, TTokenizerProps } from '../ui/Tokenizer';
 import TickerTokenList from './TickerTokenList';
 import TickerTypeaheadList from './TickerTypeaheadList';
 import { AccountPosition } from '../data/portfolio';
@@ -91,7 +91,6 @@ function TradeSection({ }: TProps) {
     .filter(({ value }) => value < 0);
   const trades = [... sell_orders, ... buy_orders]
     .sort(({ value: a_val }, { value: b_val }) => b_val - a_val);
-  
   return (
     <SectionCard title='Trades'>
       <div className='flex flex-row items-stretch gap-4 h-10 w-full mb-2 text-sm'>

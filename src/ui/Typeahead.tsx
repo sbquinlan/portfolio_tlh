@@ -17,7 +17,7 @@ export type TTypeaheadProps<TDataElement> = {
   onChange: React.ChangeEventHandler<HTMLInputElement>,
   options: TDataElement[],
   onSelectOption: (d: TDataElement) => void,
-  onSelectCustom: (value: string) => void,
+  onSelectCustom?: (value: string) => void,
 } & React.InputHTMLAttributes<HTMLInputElement>;
 
 export function Typeahead<TDataElement>({ 
@@ -66,7 +66,7 @@ export function Typeahead<TDataElement>({
         case "Enter":
           if (open) {
             onSelectOption(options[highlight]);
-          } else if (value) {
+          } else if (value && onSelectCustom) {
             onSelectCustom(value as string);
           }
           break;
