@@ -15,27 +15,26 @@ function TargetSection({}: TProps) {
     undefined
   );
   return (
-    <SectionCard title="Targets">
-      <div className="flex flex-col max-h-full">
-        <TargetEditor
-          target={selected}
-          saveTarget={(t) => {
-            dispatch(saveTarget(t));
-            setSelected(undefined);
-          }}
-          clearTarget={() => setSelected(undefined)}
-        />
-        <ul className="border border-gray-500">
-          {targets.map((p) => (
-            <TargetRow
-              key={p.key}
-              target={p}
-              onSelectTarget={setSelected}
-              onDeleteTarget={(t) => dispatch(removeTarget(t))}
-            />
-          ))}
-        </ul>
-      </div>
+    <SectionCard title="Targets" controls={
+      <TargetEditor
+        target={selected}
+        saveTarget={(t) => {
+          dispatch(saveTarget(t));
+          setSelected(undefined);
+        }}
+        clearTarget={() => setSelected(undefined)}
+      />
+    }>
+      <ul className="border border-gray-500">
+        {targets.map((p) => (
+          <TargetRow
+            key={p.key}
+            target={p}
+            onSelectTarget={setSelected}
+            onDeleteTarget={(t) => dispatch(removeTarget(t))}
+          />
+        ))}
+      </ul>
     </SectionCard>
   );
 }

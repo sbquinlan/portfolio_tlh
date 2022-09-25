@@ -24,7 +24,7 @@ type TProps = {
   onChange: (p: Record<string, AccountPosition>) => void;
 };
 
-export default function AccountUpload({ onChange }: TProps) {
+export default function PositionEditor({ onChange }: TProps) {
   async function _onChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files![0];
     if (!file) {
@@ -59,22 +59,31 @@ export default function AccountUpload({ onChange }: TProps) {
   }
   const input_ref = useRef<HTMLInputElement>(null);
   return (
-    <span>
-      <input
-        ref={input_ref}
-        className="hidden"
-        type="file"
-        accept="csv"
-        onChange={_onChange}
-      />
+    <div className="flex flex-row items-stretch justify-evenly justify-items-stretch text-sm gap-2 h-8 mb-2">
       <button
-        className="bg-slate-500 hover:bg-blue-700 text-white text-sm font-semibold py-1 px-4 rounded"
-        onClick={() => {
-          input_ref.current?.click();
-        }}
+        className="flex-grow bg-slate-500 hover:bg-blue-700 text-white font-semibold py-1 px-1 rounded"
+        onClick={() => { onChange({}) }}
       >
-        Upload
+        Clear
       </button>
-    </span>
+      <span className="flex-grow">
+        <input
+          ref={input_ref}
+          className="hidden"
+          type="file"
+          accept="csv"
+          onChange={_onChange}
+        />
+        <button
+          className="h-full w-full bg-blue-500 hover:bg-blue-700 text-white font-semibold py-1 px-1 rounded"
+          onClick={() => {
+            input_ref.current?.click();
+          }}
+        >
+          Upload
+        </button>
+      </span>
+    </div>
+    
   );
 }

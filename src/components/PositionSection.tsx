@@ -1,5 +1,5 @@
 import { useAppDispatch } from '../data/store';
-import AccountUpload from './AccountUpload';
+import PositionEditor from './PositionEditor';
 import PositionTable from './PositionTable';
 import { loadPositions } from '../data/portfolio';
 import SectionCard from './SectionCard';
@@ -9,8 +9,8 @@ function PositionSection({}: TProps) {
   const dispatch = useAppDispatch();
   return (
     <SectionCard
-      title="Portfolio"
-      header={<AccountUpload onChange={(p) => dispatch(loadPositions(p))} />}
+      title="Positions"
+      controls={<PositionEditor onChange={(p) => dispatch(loadPositions(p))} />}
     >
       <PositionTable />
     </SectionCard>

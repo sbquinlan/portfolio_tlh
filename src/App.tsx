@@ -4,7 +4,7 @@ import TradeSection from './components/TradeSection';
 
 function App() {
   return (
-    <div className="container grid grid-flow-row-dense lg:grid-cols-2 grid-cols-1 gap-4 mx-auto md:px-12 px-4">
+    <div className="container flex flex-col gap-4 mx-auto px-4">
       <TargetSection />
       <PositionSection />
       <TradeSection />

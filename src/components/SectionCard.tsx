@@ -2,22 +2,22 @@ import { PropsWithChildren } from 'react';
 
 type TProps = {
   title: string;
-  header?: React.ReactNode;
+  controls: React.ReactNode | undefined,
 } & React.HTMLAttributes<HTMLDivElement>;
 function SectionCard({
   className,
   title,
-  header,
+  controls,
   children,
   ...rest
 }: PropsWithChildren<TProps>) {
   return (
-    <div className={`flex flex-col ${className}`} {...rest}>
-      <div className="flex-shrink-0 flex flex-row items-center py-2 px-4">
-        <h1 className="flex-1 truncate text-lg font-bold">{title}</h1>
-        {header}
+    <div {...rest} className="lg:grid lg:grid-cols-3 lg:gap-4">
+      <div className="lg:col-span-3 bg-gray-200 truncate text-lg font-bold py-2 px-4">
+        <h1>{title}</h1>
       </div>
-      <div className="flex-1 overflow-auto">{children}</div>
+      <div>{controls}</div>
+      <div className="lg:col-span-2">{children}</div>
     </div>
   );
 }

@@ -105,49 +105,46 @@ function TradeSection({}: TProps) {
     ({ value: a_val }, { value: b_val }) => b_val - a_val
   );
   return (
-    <SectionCard title="Trades">
-      <div className="flex flex-row items-stretch gap-4 h-10 w-full mb-2 text-sm">
-        <div className="w-full">
-          <Tokenizer
-            aria-label="Wash Sale"
-            placeholder="Previously Sold"
-            className="flex-grow form-input mt-0 mb-1 px-2 py-1 border-0 border-b-2 focus-within:border-blue-600 focus:ring-0 cursor-text"
-            options={wash_sale_options}
-            value={wash_sale_search}
-            onChange={(e) => setWashSaleSearch(e.target.value)}
-            tokens={wash_sale}
-            onRemoveToken={(d) => {
-              setWashSale((tickers) => tickers.filter((t) => t !== d));
-            }}
-            onSelectOption={(a: string) => {
-              setWashSale((tickers) => tickers.concat([a]));
-              setWashSaleSearch('');
-            }}
-            listComponent={TickerTypeaheadList}
-            tokensComponent={TickerTokenList}
-          />
-        </div>
-        <div className="w-full">
-          <Tokenizer
-            aria-label="Close Position"
-            placeholder="Close Position"
-            className="flex-grow form-input mt-0 mb-1 px-2 py-1 border-0 border-b-2 focus-within:border-blue-600 focus:ring-0 cursor-text"
-            options={offset_gains_options}
-            value={offset_gains_search}
-            onChange={(e) => setOffsetGainsSearch(e.target.value)}
-            tokens={offset_gains}
-            onRemoveToken={(d) => {
-              setOffsetGains((tickers) => tickers.filter((t) => t !== d));
-            }}
-            onSelectOption={(a: string) => {
-              setOffsetGains((tickers) => tickers.concat([a]));
-              setOffsetGainsSearch('');
-            }}
-            listComponent={TickerTypeaheadList}
-            tokensComponent={TickerTokenList}
-          />
-        </div>
+    <SectionCard title="Trades" controls={
+      <div className="w-full text-sm mb-2">
+        <Tokenizer
+          aria-label="Wash Sale"
+          placeholder="Previously Sold"
+          className="form-input mt-0 mb-1 px-2 py-1 border-0 border-b-2 focus-within:border-blue-600 focus:ring-0 cursor-text"
+          options={wash_sale_options}
+          value={wash_sale_search}
+          onChange={(e) => setWashSaleSearch(e.target.value)}
+          tokens={wash_sale}
+          onRemoveToken={(d) => {
+            setWashSale((tickers) => tickers.filter((t) => t !== d));
+          }}
+          onSelectOption={(a: string) => {
+            setWashSale((tickers) => tickers.concat([a]));
+            setWashSaleSearch('');
+          }}
+          listComponent={TickerTypeaheadList}
+          tokensComponent={TickerTokenList}
+        />
+        <Tokenizer
+          aria-label="Close Position"
+          placeholder="Close Position"
+          className="form-input mt-0 mb-1 px-2 py-1 border-0 border-b-2 focus-within:border-blue-600 focus:ring-0 cursor-text"
+          options={offset_gains_options}
+          value={offset_gains_search}
+          onChange={(e) => setOffsetGainsSearch(e.target.value)}
+          tokens={offset_gains}
+          onRemoveToken={(d) => {
+            setOffsetGains((tickers) => tickers.filter((t) => t !== d));
+          }}
+          onSelectOption={(a: string) => {
+            setOffsetGains((tickers) => tickers.concat([a]));
+            setOffsetGainsSearch('');
+          }}
+          listComponent={TickerTypeaheadList}
+          tokensComponent={TickerTokenList}
+        />
       </div>
+    }>
       <TradeTable trades={trades} />
     </SectionCard>
   );

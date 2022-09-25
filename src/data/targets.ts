@@ -5,6 +5,7 @@ import { v4 as uuid } from 'uuid';
 
 export interface TargetPosition extends IKeyable {
   tickers: string[];
+  direct?: string;
   name: string;
   weight: number;
 }
