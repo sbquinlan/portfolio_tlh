@@ -167,7 +167,7 @@ export function SortableTable<TRow extends IKeyable>({
   return (
     <table className="w-full table-auto" {...rest}>
       <SortableTableHeader
-        className="border-b border-black cursor-pointer text-xs"
+        className="bg-gray-200 cursor-pointer text-xs"
         cols={cols}
         sort={sort}
         setSort={setSort}

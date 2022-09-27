@@ -1,7 +1,7 @@
 import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux';
 import { configureStore } from '@reduxjs/toolkit';
 import targets from './targets';
-import positions from './portfolio';
+import positions from './positions';
 
 export const LS_KEY = 'RDX_STATE';
 

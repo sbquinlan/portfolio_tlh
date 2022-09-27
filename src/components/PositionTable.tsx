@@ -9,7 +9,7 @@ import {
   MoneyColumn,
 } from '../ui/SortableTable';
 import { DisplayTargetState } from '../data/display';
-import { AccountPosition } from '../data/portfolio';
+import { AccountPosition } from '../data/positions';
 import formatDollas from '../lib/format_dollas';
 import {
   CollapsibleTable,
@@ -118,6 +118,12 @@ function NestedPositionTable({
   );
 }
 
+const UNALLOCATED_TARGET = Object.freeze({
+  key: 'unallocated',
+  tickers: [],
+  name: 'Unallocated Positions',
+  weight: 0,
+});
 type TProps = {};
 function PositionTable({}: TProps) {
   const { total_value, positions } = useAppSelector(
@@ -140,12 +146,7 @@ function PositionTable({}: TProps) {
         []
       );
       const unallocated = new DisplayTargetState(
-        {
-          key: 'unallocated',
-          tickers: ['unallocated'],
-          name: 'Unallocated Positions',
-          weight: 0,
-        },
+        UNALLOCATED_TARGET,
         Object.values(positions).filter(
           (p) => !~allocated_tickers.indexOf(p.ticker)
         )

@@ -1,4 +1,4 @@
-import { AccountPosition } from './portfolio';
+import { AccountPosition } from './positions';
 
 // To come from the etf-holdings database
 export class FundHoldings {

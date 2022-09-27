@@ -11,7 +11,7 @@ export interface TargetPosition extends IKeyable {
 }
 
 export const targetSlice = createSlice({
-  name: 'target',
+  name: 'targets',
   initialState: {} as Record<string, TargetPosition>,
   reducers: {
     removeTarget(state, { payload: target }: PayloadAction<TargetPosition>) {

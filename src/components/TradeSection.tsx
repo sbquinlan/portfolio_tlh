@@ -1,51 +1,19 @@
 import { useMemo, useState } from 'react';
-import { rank_options } from '../lib/string_search';
-import { Tokenizer, TTokenizerProps } from '../ui/Tokenizer';
-import TickerTokenList from './TickerTokenList';
-import TickerTypeaheadList from './TickerTypeaheadList';
-import { AccountPosition } from '../data/portfolio';
+import { AccountPosition } from '../data/positions';
 import { TargetPosition } from '../data/targets';
 import { useAppSelector } from '../data/store';
 import TradeTable, { Trade } from './TradeTable';
 import SectionCard from './SectionCard';
+import TradeEditor from './TradeEditor';
 
-type TProps = {};
-function TradeSection({}: TProps) {
-  const { targets, positions } = useAppSelector((state) => state);
-  const all_positions = Object.values(positions);
-  const all_tickers = all_positions.reduce<string[]>(
-    (list, pos) => list.concat([pos.ticker]),
-    []
-  );
-
-  const [wash_sale_search, setWashSaleSearch] = useState('');
-  const [wash_sale, setWashSale] = useState<string[]>([]);
-  const wash_sale_options = useMemo(
-    () =>
-      rank_options(
-        wash_sale_search.toUpperCase(),
-        all_tickers,
-        wash_sale,
-        (t) => t
-      ),
-    [wash_sale, wash_sale_search, all_tickers]
-  );
-
-  const [offset_gains_search, setOffsetGainsSearch] = useState('');
-  const [offset_gains, setOffsetGains] = useState<string[]>([]);
-  const offset_gains_options = useMemo(
-    () =>
-      rank_options(
-        offset_gains_search.toUpperCase(),
-        all_tickers,
-        offset_gains,
-        (t) => t
-      ),
-    [offset_gains, offset_gains_search, all_tickers]
-  );
-
+function calculate_trades(
+  targets: Record<string, TargetPosition>,
+  positions: Record<string, AccountPosition>,
+  offset_gains: string[],
+  wash_sale: string[],
+) {
   const sell_orders = [
-    ...all_positions
+    ...Object.values(positions)
       .filter((p) => p.loss < 0)
       .map<Trade>((l) => ({
         ...l,
@@ -63,7 +31,7 @@ function TradeSection({}: TProps) {
         loss: 0,
       })),
   ];
-  const sell_tickers = sell_orders.map((l) => l.ticker);
+  const sell_tickers = wash_sale.concat(sell_orders.map((l) => l.ticker));
   const total_liquid = sell_orders.reduce<number>((sum, p) => sum + p.value, 0);
 
   const adjusted_values = Object.values(targets)
@@ -101,49 +69,34 @@ function TradeSection({}: TProps) {
           Math.max(0, total_liquid - catchup_amount) * t.weight),
     }))
     .filter(({ value }) => value < 0);
-  const trades = [...sell_orders, ...buy_orders].sort(
+  return [...sell_orders, ...buy_orders].sort(
     ({ value: a_val }, { value: b_val }) => b_val - a_val
   );
+}
+
+type TProps = {};
+function TradeSection({}: TProps) {
+  const { targets, positions } = useAppSelector(state => state);
+  const all_tickers = useMemo(
+    () => Object.values(positions).reduce<string[]>(
+      (list, pos) => list.concat([pos.ticker]),
+      []
+    ),
+    [positions],
+  );
+
+  const [wash_sale, setWashSale] = useState<string[]>([]);
+  const [offset_gains, setOffsetGains] = useState<string[]>([]);
+  const trades = calculate_trades(targets, positions, offset_gains, wash_sale);
   return (
     <SectionCard title="Trades" controls={
-      <div className="w-full text-sm mb-2">
-        <Tokenizer
-          aria-label="Wash Sale"
-          placeholder="Previously Sold"
-          className="form-input mt-0 mb-1 px-2 py-1 border-0 border-b-2 focus-within:border-blue-600 focus:ring-0 cursor-text"
-          options={wash_sale_options}
-          value={wash_sale_search}
-          onChange={(e) => setWashSaleSearch(e.target.value)}
-          tokens={wash_sale}
-          onRemoveToken={(d) => {
-            setWashSale((tickers) => tickers.filter((t) => t !== d));
-          }}
-          onSelectOption={(a: string) => {
-            setWashSale((tickers) => tickers.concat([a]));
-            setWashSaleSearch('');
-          }}
-          listComponent={TickerTypeaheadList}
-          tokensComponent={TickerTokenList}
-        />
-        <Tokenizer
-          aria-label="Close Position"
-          placeholder="Close Position"
-          className="form-input mt-0 mb-1 px-2 py-1 border-0 border-b-2 focus-within:border-blue-600 focus:ring-0 cursor-text"
-          options={offset_gains_options}
-          value={offset_gains_search}
-          onChange={(e) => setOffsetGainsSearch(e.target.value)}
-          tokens={offset_gains}
-          onRemoveToken={(d) => {
-            setOffsetGains((tickers) => tickers.filter((t) => t !== d));
-          }}
-          onSelectOption={(a: string) => {
-            setOffsetGains((tickers) => tickers.concat([a]));
-            setOffsetGainsSearch('');
-          }}
-          listComponent={TickerTypeaheadList}
-          tokensComponent={TickerTokenList}
-        />
-      </div>
+      <TradeEditor 
+        allTickers={all_tickers} 
+        washSale={wash_sale} 
+        setWashSale={setWashSale} 
+        offsetGains={offset_gains}
+        setOffsetGains={setOffsetGains}
+      />
     }>
       <TradeTable trades={trades} />
     </SectionCard>

@@ -25,7 +25,7 @@ function TargetRow({ target, onSelectTarget, onDeleteTarget }: TProps) {
         <span className="text-sm font-semibold">{target.name}</span>
         {target.tickers.map(
           t => (
-            <span className={`text-sm ${target.direct === t ? ' text-blue-600' : 'text-gray-500'} ml-1`}>
+            <span key={t} className={`text-sm ${target.direct === t ? ' text-blue-600' : 'text-gray-500'} ml-1`}>
               {t}
             </span>
           )

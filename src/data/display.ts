@@ -1,5 +1,5 @@
 import { TargetPosition } from './targets';
-import { AccountPosition } from './portfolio';
+import { AccountPosition } from './positions';
 import { IKeyable } from '../ui/SortableTable';
 
 // Pairing of a target and the current
