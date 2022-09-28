@@ -41,7 +41,7 @@ export function TargetEditor({
       direct_index.toUpperCase(),
       target_draft.tickers,
       [],
-      t => t
+      (t) => t
     );
   }, [direct_index, target_draft.tickers]);
 
@@ -85,7 +85,9 @@ export function TargetEditor({
         className="form-input mt-0 mb-1 px-2 py-1 border-0 border-b-2 focus-within:border-blue-600 focus:ring-0 cursor-text"
         aria-label="direct_index"
         placeholder="Direct Index"
-        disabled={target_draft.tickers.length === 0 || Boolean(target_draft.direct)}
+        disabled={
+          target_draft.tickers.length === 0 || Boolean(target_draft.direct)
+        }
         options={direct_index_options}
         value={direct_index}
         onChange={(e) => {
@@ -102,7 +104,7 @@ export function TargetEditor({
         onRemoveToken={(_) => {
           setTargetDraft((draft) => ({
             ...draft,
-            direct: undefined
+            direct: undefined,
           }));
         }}
         listComponent={TickerTypeaheadList}
@@ -119,7 +121,8 @@ export function TargetEditor({
       />
       <span className="flex flex-row gap-2 px-2 py-0.5 mb-2 items-center">
         <span className="py-1 text-slate-500 text-base">Weight</span>
-        <input className="flex-grow"
+        <input
+          className="flex-grow"
           type="range"
           min={0}
           max={100}

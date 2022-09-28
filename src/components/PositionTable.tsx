@@ -22,10 +22,6 @@ const NESTED_COLUMNS = [
   new MoneyColumn<AccountPosition>('Value', (r) => r.value),
   new MoneyColumn<AccountPosition>('Profit', (r) => r.gain),
   new MoneyColumn<AccountPosition>('Loss', (r) => r.loss),
-  // new MoneyColumn<AccountPosition>(
-  //   'Net',
-  //   (r) => r.loss + r.gain,
-  // ),
 ];
 
 function TargetTableRowFragment({
@@ -118,49 +114,11 @@ function NestedPositionTable({
   );
 }
 
-const UNALLOCATED_TARGET = Object.freeze({
-  key: 'unallocated',
-  tickers: [],
-  name: 'Unallocated Positions',
-  weight: 0,
-});
-type TProps = {};
-function PositionTable({}: TProps) {
-  const { total_value, positions } = useAppSelector(
-    ({ targets, positions }) => {
-      const all_targets = Object.values(targets);
-      const portfolio_positions = all_targets.reduce<DisplayTargetState[]>(
-        (acc, target) =>
-          acc.concat(
-            new DisplayTargetState(
-              target,
-              target.tickers
-                .map((t) => positions[t])
-                .filter((n): n is AccountPosition => n !== undefined)
-            )
-          ),
-        []
-      );
-      const allocated_tickers = all_targets.reduce<string[]>(
-        (acc, next) => acc.concat(next.tickers),
-        []
-      );
-      const unallocated = new DisplayTargetState(
-        UNALLOCATED_TARGET,
-        Object.values(positions).filter(
-          (p) => !~allocated_tickers.indexOf(p.ticker)
-        )
-      );
-      const total_value = Object.values(positions).reduce<number>(
-        (sum, p) => sum + p.value,
-        0
-      );
-      return {
-        total_value,
-        positions: [...portfolio_positions, unallocated],
-      };
-    }
-  );
+type TProps = { targets: DisplayTargetState[] };
+function PositionTable({ targets }: TProps) {
+  const total_value = targets
+    .map((dt) => dt.holdings)
+    .reduce((acc, dt) => acc + dt.reduce((acc, h) => acc + h.value, 0), 0);
 
   const TARGET_COLUMNS = [
     new StringColumn<DisplayTargetState>('Name', (r) => r.target.name),
@@ -177,16 +135,12 @@ function PositionTable({}: TProps) {
     new MoneyColumn<DisplayTargetState>('Loss', (r) =>
       r.holdings.reduce<number>((sum, p) => sum + p.loss, 0)
     ),
-    // new MoneyColumn<DisplayTargetState>(
-    //   'Net',
-    //   (r) => r.holdings.reduce<number>((sum, p) => sum + p.loss + p.gain, 0),
-    // ),
   ];
 
   return (
     <CollapsibleTable
       className="overflow-auto table-auto max-h-80 w-full text-sm border border-black"
-      rows={positions}
+      rows={targets}
       cols={TARGET_COLUMNS}
       fragmentComponent={TargetTableRowFragment}
       nestedComponent={NestedPositionTable}

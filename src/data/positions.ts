@@ -1,5 +1,4 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import type { PayloadAction } from '@reduxjs/toolkit';
 
 import { IKeyable } from '../ui/SortableTable';
 import Papa from 'papaparse';
@@ -63,15 +62,12 @@ export const fromFile = createAsyncThunk(
 export const positionSlice = createSlice({
   name: 'positions',
   initialState: {} as Record<string, AccountPosition>,
-  reducers: { },
+  reducers: {},
   extraReducers: (builder) => {
-    builder.addCase(
-      fromFile.fulfilled, 
-      (state, { payload: positions }) => {
-        Object.assign(state, positions);
-      }
-    )
-  }
+    builder.addCase(fromFile.fulfilled, (state, { payload: positions }) => {
+      Object.assign(state, positions);
+    });
+  },
 });
 
 export default positionSlice.reducer;

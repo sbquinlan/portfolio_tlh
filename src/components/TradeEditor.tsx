@@ -1,18 +1,18 @@
-import { Dispatch, SetStateAction, useMemo, useState } from "react";
-import { rank_options } from "../lib/string_search";
-import { Tokenizer } from "../ui/Tokenizer";
-import TickerTokenList from "./TickerTokenList";
-import TickerTypeaheadList from "./TickerTypeaheadList";
+import { Dispatch, SetStateAction, useMemo, useState } from 'react';
+import { rank_options } from '../lib/string_search';
+import { Tokenizer } from '../ui/Tokenizer';
+import TickerTokenList from './TickerTokenList';
+import TickerTypeaheadList from './TickerTypeaheadList';
 
 type TProps = {
-  allTickers: string[],
+  allTickers: string[];
 
-  washSale: string[],
-  setWashSale: Dispatch<SetStateAction<string[]>>,
+  washSale: string[];
+  setWashSale: Dispatch<SetStateAction<string[]>>;
 
-  offsetGains: string[],
-  setOffsetGains: Dispatch<SetStateAction<string[]>>,
-}
+  offsetGains: string[];
+  setOffsetGains: Dispatch<SetStateAction<string[]>>;
+};
 function TradeEditor({
   allTickers,
 
@@ -29,7 +29,7 @@ function TradeEditor({
         wash_sale_search.toUpperCase(),
         allTickers,
         washSale,
-        t => t
+        (t) => t
       ),
     [washSale, wash_sale_search, allTickers]
   );
@@ -41,7 +41,7 @@ function TradeEditor({
         offset_gains_search.toUpperCase(),
         allTickers,
         offsetGains,
-        t => t
+        (t) => t
       ),
     [offsetGains, offset_gains_search, allTickers]
   );
@@ -85,6 +85,6 @@ function TradeEditor({
         tokensComponent={TickerTokenList}
       />
     </div>
-  )
+  );
 }
 export default TradeEditor;

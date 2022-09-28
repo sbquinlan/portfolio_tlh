@@ -3,16 +3,17 @@ import PositionEditor from './PositionEditor';
 import PositionTable from './PositionTable';
 import { fromFile } from '../data/positions';
 import SectionCard from './SectionCard';
+import { DisplayTargetState } from '../data/display';
 
-type TProps = {};
-function PositionSection({}: TProps) {
+type TProps = { targets: DisplayTargetState[] };
+function PositionSection({ targets }: TProps) {
   const dispatch = useAppDispatch();
   return (
     <SectionCard
       title="Positions"
       controls={<PositionEditor onChange={(p) => dispatch(fromFile(p))} />}
     >
-      <PositionTable />
+      <PositionTable targets={targets} />
     </SectionCard>
   );
 }

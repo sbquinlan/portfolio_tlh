@@ -2099,6 +2099,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"quinzlib@https://github.com/sbquinlan/quinzlib#v1.1.0":
+  version: 1.1.0
+  resolution: "quinzlib@https://github.com/sbquinlan/quinzlib.git#commit=010aece4480782b9556bed614e56ce381bd43a7e"
+  checksum: bb867d4576c50d34039219ba422a510865fb6077c8bd12f08daf2d027e6e35b7e136634d1b43b01318c5590733676255af9a2edc127946531fb4e6be3b21ca0f
+  languageName: node
+  linkType: hard
+
 "react-dom@npm:^18.2.0":
   version: 18.2.0
   resolution: "react-dom@npm:18.2.0"
@@ -2218,6 +2225,7 @@ __metadata:
     papaparse: ^5.3.2
     postcss: ^8.4.16
     prettier: ^2.7.1
+    quinzlib: "https://github.com/sbquinlan/quinzlib#v1.1.0"
     react: ^18.2.0
     react-dom: ^18.2.0
     react-redux: ^8.0.2

@@ -23,13 +23,16 @@ function TargetRow({ target, onSelectTarget, onDeleteTarget }: TProps) {
     >
       <div className="flex-1 truncate">
         <span className="text-sm font-semibold">{target.name}</span>
-        {target.tickers.map(
-          t => (
-            <span key={t} className={`text-sm ${target.direct === t ? ' text-blue-600' : 'text-gray-500'} ml-1`}>
-              {t}
-            </span>
-          )
-        )}
+        {target.tickers.map((t) => (
+          <span
+            key={t}
+            className={`text-sm ${
+              target.direct === t ? ' text-blue-600' : 'text-gray-500'
+            } ml-1`}
+          >
+            {t}
+          </span>
+        ))}
       </div>
       <span className="text-sm font-semibold border-gray-500">
         {target.weight * 100}%

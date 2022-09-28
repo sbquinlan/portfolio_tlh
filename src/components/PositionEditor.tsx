@@ -13,7 +13,9 @@ export default function PositionEditor({ onChange }: TProps) {
     <div className="flex flex-row items-stretch justify-evenly justify-items-stretch text-sm gap-2 h-8 mb-2">
       <button
         className="flex-grow bg-slate-500 hover:bg-blue-700 text-white font-semibold py-1 px-1 rounded"
-        onClick={() => { onChange() }}
+        onClick={() => {
+          onChange();
+        }}
       >
         Clear
       </button>
@@ -35,6 +37,5 @@ export default function PositionEditor({ onChange }: TProps) {
         </button>
       </span>
     </div>
-    
   );
 }

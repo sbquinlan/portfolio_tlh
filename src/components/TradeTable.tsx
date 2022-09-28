@@ -1,3 +1,4 @@
+import { Trade } from '../data/trades';
 import format_dollas from '../lib/format_dollas';
 import {
   MoneyColumn,
@@ -6,15 +7,6 @@ import {
   StringColumn,
   TSortableTableChildProps,
 } from '../ui/SortableTable';
-
-export type Trade = {
-  key: string;
-  order: 'buy' | 'sell';
-  ticker: string;
-  value: number;
-  gain: number;
-  loss: number;
-};
 
 const COLUMNS = [
   new StringColumn<Trade>('Buy / Sell', (r) => r.order),

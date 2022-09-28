@@ -2,7 +2,7 @@ import { PropsWithChildren } from 'react';
 
 type TProps = {
   title: string;
-  controls: React.ReactNode | undefined,
+  controls: React.ReactNode | undefined;
 } & React.HTMLAttributes<HTMLDivElement>;
 function SectionCard({
   className,
