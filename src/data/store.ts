@@ -2,6 +2,7 @@ import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux';
 import { configureStore } from '@reduxjs/toolkit';
 import targets from './targets';
 import positions from './positions';
+import funds from './funds';
 
 export const LS_KEY = 'RDX_STATE';
 
@@ -27,7 +28,7 @@ async function saveState({ targets }: RootState) {
 }
 
 export const store = configureStore({
-  reducer: { targets, positions },
+  reducer: { funds, positions, targets },
   preloadedState: loadState(),
 });
 

@@ -4,7 +4,7 @@ import { Tokenizer } from '../ui/Tokenizer';
 import { rank_options } from '../lib/string_search';
 import TickerTypeaheadList from './TickerTypeaheadList';
 import TickerTokenList from './TickerTokenList';
-import TICKERS from '../funds.json';
+import { useAppSelector } from '../data/store';
 
 type TTargetEditorProps = {
   target: TargetPosition | undefined;
@@ -21,6 +21,7 @@ export function TargetEditor({
   const [target_draft, setTargetDraft] = useState<Omit<TargetPosition, 'key'>>(
     selected ?? { weight: 0, name: '', tickers: [] }
   );
+  const funds = useAppSelector(({ funds }) => Object.values(funds));
 
   useEffect(() => {
     setTargetDraft(selected ?? { weight: 0, name: '', tickers: [] });
@@ -30,9 +31,9 @@ export function TargetEditor({
     if (symbol_search.length == 0) return [];
     return rank_options(
       symbol_search.toUpperCase(),
-      TICKERS,
+      funds,
       target_draft.tickers ?? [],
-      (t) => t.ticker
+      ({ ticker }) => ticker
     );
   }, [symbol_search, target_draft.tickers]);
   const direct_index_options = useMemo(() => {

@@ -15,7 +15,6 @@ import {
   CollapsibleTable,
   TCollapsibleNestedChildProps,
 } from '../ui/CollapsibleTable';
-import { useAppSelector } from '../data/store';
 
 const NESTED_COLUMNS = [
   new StringColumn<AccountPosition>('Symbol', (r) => r.ticker),
@@ -103,11 +102,11 @@ function PositionTableBody({
 function NestedPositionTable({
   row,
 }: TCollapsibleNestedChildProps<DisplayTargetState>) {
-  if (!row.holdings.length) return null;
+  if (!row.positions.length) return null;
   return (
     <SortableTable
       className="table-auto w-full border-y border-black"
-      rows={row.holdings}
+      rows={row.positions}
       cols={NESTED_COLUMNS}
       bodyComponent={PositionTableBody}
     />
@@ -117,23 +116,23 @@ function NestedPositionTable({
 type TProps = { targets: DisplayTargetState[] };
 function PositionTable({ targets }: TProps) {
   const total_value = targets
-    .map((dt) => dt.holdings)
+    .map((dt) => dt.positions)
     .reduce((acc, dt) => acc + dt.reduce((acc, h) => acc + h.value, 0), 0);
 
   const TARGET_COLUMNS = [
     new StringColumn<DisplayTargetState>('Name', (r) => r.target.name),
     new MoneyColumn<DisplayTargetState>('Value', (r) =>
-      r.holdings.reduce<number>((sum, p) => sum + p.value, 0)
+      r.positions.reduce<number>((sum, p) => sum + p.value, 0)
     ),
     new MoneyColumn<DisplayTargetState>(
       'Target',
       (r) => r.target.weight * total_value
     ),
     new MoneyColumn<DisplayTargetState>('Profit', (r) =>
-      r.holdings.reduce<number>((sum, p) => sum + p.gain, 0)
+      r.positions.reduce<number>((sum, p) => sum + p.gain, 0)
     ),
     new MoneyColumn<DisplayTargetState>('Loss', (r) =>
-      r.holdings.reduce<number>((sum, p) => sum + p.loss, 0)
+      r.positions.reduce<number>((sum, p) => sum + p.loss, 0)
     ),
   ];
 

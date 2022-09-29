@@ -1,24 +1,21 @@
+import { createSelector } from '@reduxjs/toolkit';
 import { TargetPosition } from './targets';
 import { AccountPosition } from './positions';
 import { IKeyable } from '../ui/SortableTable';
-import { createSelector } from '@reduxjs/toolkit';
 import { RootState } from './store';
-import { create } from 'domain';
+import { FundHolding } from './funds';
 
 // Pairing of a target and the current
-export class DisplayTargetState implements IKeyable {
-  constructor(
-    public readonly target: TargetPosition,
-    public readonly holdings: AccountPosition[]
-  ) {}
-
-  public get key(): string {
-    return this.target.key;
-  }
+export interface DisplayTargetState extends IKeyable {
+  target: TargetPosition,
+  positions: AccountPosition[],
+  directTargets?: FundHolding[],
 }
 
+export const selectFunds = (state: RootState) => state.funds;
 export const selectTargets = (state: RootState) => state.targets;
 export const selectPositions = (state: RootState) => state.positions;
+
 export const selectAllTickersFromPositions = createSelector(
   [selectPositions],
   (positions) => Object.keys(positions)
@@ -35,37 +32,59 @@ const UNALLOCATED_TARGET = Object.freeze({
   weight: 0,
 });
 export const selectTargetsJoinPositions = createSelector(
-  [selectTargets, selectPositions],
-  (targets, positions) => {
+  [selectTargets, selectPositions, selectFunds],
+  (targets, positions, funds) => {
     const display_targets: DisplayTargetState[] = Object.values(targets)
-      .map((t) => new DisplayTargetState(t, []))
-      .concat([new DisplayTargetState(UNALLOCATED_TARGET, [])]);
-
+      .map<DisplayTargetState>(target => ({ 
+        key: target.key, 
+        target, 
+        positions: [], 
+        directTargets: target.direct ? Object.values(funds[target.direct].holdings) : [],
+      }))
+      .concat([{ 
+        key: UNALLOCATED_TARGET.key, 
+        target: UNALLOCATED_TARGET, 
+        positions: []
+      }]);
+    
     for (const pos of Object.values(positions)) {
-      let matching = display_targets.filter((dt) =>
-        dt.target.tickers.includes(pos.ticker)
-      );
+      let matching = display_targets.map(
+        dt => {
+          if (dt.target.tickers.includes(pos.ticker)) {
+            return [dt, dt.target.weight]
+          }
+          if (
+            dt.target.direct && 
+            dt.target.direct in funds &&
+            pos.ticker in funds[dt.target.direct].holdings
+          ) {
+            return [dt, dt.target.weight * funds[dt.target.direct].holdings[pos.ticker].weight]
+          }
+          return undefined
+        })
+        .filter((t): t is [DisplayTargetState, number] => !!t);
       if (matching.length === 0) {
         matching = display_targets.filter(
-          (dt) => dt.target === UNALLOCATED_TARGET
-        );
+          dt => dt.target === UNALLOCATED_TARGET
+        ).map(dt => [dt, dt.target.weight])
       }
       if (matching.length === 1) {
-        matching[0]!.holdings.push(pos);
+        const [dt, _weight] = matching[0];
+        dt.positions.push(pos);
       } else {
         const magnitude = matching.reduce<number>(
-          (acc, dt) => acc + dt.target.weight,
+          (acc, [_, weight]) => acc + weight,
           0
         );
-        for (const dt of matching) {
-          const weight = dt.target.weight / (magnitude || 1);
-          dt.holdings.push({
+        for (const [dt, weight] of matching) {
+          const split_weight = weight / (magnitude || 1);
+          dt.positions.push({
             ...pos,
-            value: pos.value * weight,
-            loss: pos.loss * weight,
-            lossvalue: pos.lossvalue * weight,
-            gain: pos.gain * weight,
-            gainvalue: pos.gainvalue * weight,
+            value: pos.value * split_weight,
+            loss: pos.loss * split_weight,
+            lossvalue: pos.lossvalue * split_weight,
+            gain: pos.gain * split_weight,
+            gainvalue: pos.gainvalue * split_weight,
           });
         }
       }
