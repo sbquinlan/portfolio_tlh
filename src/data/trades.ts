@@ -120,8 +120,23 @@ export function calculate_trades(
         (Math.min(catchup_amount, total_liquid) * catchup_weight +
           Math.max(0, total_liquid - catchup_amount) * target_weight),
     }))
-    .filter(({ value }) => value < 0);
-  return [...sell_orders, ...buy_orders].sort(
+    .filter(({ value }) => value < 0)
+    .reduce<Record<string, Trade>>(
+      (acc, trade) => ({
+        ...acc,
+        [trade.key]:
+          trade.key in acc
+            ? {
+                ...trade,
+                value: acc[trade.key].value + trade.value,
+                gain: acc[trade.key].gain + trade.gain,
+                loss: acc[trade.key].loss + trade.loss,
+              }
+            : trade,
+      }),
+      {}
+    )
+  return [...sell_orders, ...Object.values(buy_orders)].sort(
     ({ value: a_val }, { value: b_val }) => b_val - a_val
   );
 }
