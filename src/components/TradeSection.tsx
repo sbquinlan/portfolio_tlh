@@ -41,7 +41,10 @@ function TradeSection({ targets }: TProps) {
     const total_value = Object.values(updated).reduce((acc, n) => acc + n, 0);
     const weights = Object.entries(updated)
       .filter( ([_, value]) => value >= 1)
-      .map( ([ticker, value]) => `DES,${ticker},STK,SMART/AMEX,,,,,,${(100 * value) / total_value}` )
+      .map( ([ticker, value]) => {
+        const weight = (100 * value) / total_value;
+        return `DES,${ticker},STK,SMART/AMEX,,,,,,${weight.toFixed(5)}`
+      })
       .join('\n')
     
     const link = document.createElement('a')
