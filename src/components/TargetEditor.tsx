@@ -21,7 +21,7 @@ export function TargetEditor({
   const [target_draft, setTargetDraft] = useState<Omit<TargetPosition, 'key'>>(
     selected ?? { weight: 0, name: '', tickers: [] }
   );
-  const funds = useAppSelector(({ funds }) => Object.values(funds));
+  const funds = useAppSelector(({ funds }) => funds);
 
   useEffect(() => {
     setTargetDraft(selected ?? { weight: 0, name: '', tickers: [] });
@@ -31,7 +31,7 @@ export function TargetEditor({
     if (symbol_search.length == 0) return [];
     return rank_options(
       symbol_search.toUpperCase(),
-      funds,
+      Object.values(funds),
       target_draft.tickers ?? [],
       ({ ticker }) => ticker
     );
@@ -40,7 +40,7 @@ export function TargetEditor({
     if (direct_index.length == 0) return [];
     return rank_options(
       direct_index.toUpperCase(),
-      target_draft.tickers,
+      target_draft.tickers.filter(t => t in funds && funds[t].holdings.length),
       [],
       (t) => t
     );

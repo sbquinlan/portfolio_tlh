@@ -22,6 +22,36 @@ function TradeSection({ targets }: TProps) {
   );
 
   const trades = calculate_trades(targets, offset_gains_positions, wash_sale);
+  const on_export = () => {
+    const initial = Object.fromEntries(
+      targets.flatMap(
+        dt => dt.positions.map<[string, number]>( ({ ticker, value }) => [ticker, value] )
+      ),
+    );
+    const updated = trades
+      .filter( ({ order }) => order !== 'wash' )
+      .map<[string, number]>( ({ ticker, value }) => [ticker, value] )
+      .reduce<Record<string, number>>(
+        (acc, [ticker, value]) => ({ 
+          ... acc, 
+          [ticker]: (ticker in acc ? acc[ticker] : 0) - value
+        }),
+        initial
+      )
+    const total_value = Object.values(updated).reduce((acc, n) => acc + n, 0);
+    const weights = Object.entries(updated)
+      .filter( ([_, value]) => value >= 1)
+      .map( ([ticker, value]) => `DES,${ticker},STK,SMART/AMEX,,,,,,${(100 * value) / total_value}` )
+      .join('\n')
+    
+    const link = document.createElement('a')
+    link.setAttribute('href', `data:text/plain;charset=utf-8,${encodeURIComponent(weights)}`);
+    link.setAttribute('download', 'export.csv');
+    link.style.display = 'none';
+    document.body.appendChild(link);
+    link.click()
+    document.body.removeChild(link);
+  }
   return (
     <SectionCard
       title="Trades"
@@ -32,6 +62,7 @@ function TradeSection({ targets }: TProps) {
           setWashSale={setWashSale}
           offsetGains={offset_gains}
           setOffsetGains={setOffsetGains}
+          onExport={on_export}
         />
       }
     >

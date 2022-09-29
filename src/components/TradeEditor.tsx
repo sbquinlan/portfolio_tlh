@@ -12,6 +12,8 @@ type TProps = {
 
   offsetGains: string[];
   setOffsetGains: Dispatch<SetStateAction<string[]>>;
+
+  onExport: () => void;
 };
 function TradeEditor({
   allTickers,
@@ -21,6 +23,8 @@ function TradeEditor({
 
   offsetGains,
   setOffsetGains,
+
+  onExport
 }: TProps) {
   const [wash_sale_search, setWashSaleSearch] = useState('');
   const wash_sale_options = useMemo(
@@ -69,7 +73,7 @@ function TradeEditor({
       <Tokenizer
         aria-label="Close Position"
         placeholder="Close Position"
-        className="form-input mt-0 mb-1 px-2 py-1 border-0 border-b-2 focus-within:border-blue-600 focus:ring-0 cursor-text"
+        className="form-input mt-0 mb-2 px-2 py-1 border-0 border-b-2 focus-within:border-blue-600 focus:ring-0 cursor-text"
         options={offset_gains_options}
         value={offset_gains_search}
         onChange={(e) => setOffsetGainsSearch(e.target.value)}
@@ -84,6 +88,12 @@ function TradeEditor({
         listComponent={TickerTypeaheadList}
         tokensComponent={TickerTokenList}
       />
+      <button
+        className="w-full h-8 bg-slate-500 hover:bg-blue-700 text-white font-semibold py-1 px-1 rounded"
+        onClick={onExport}
+      >
+        Export for TWS
+      </button>
     </div>
   );
 }
