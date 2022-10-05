@@ -41,7 +41,7 @@ export function get_sell_trades(
           order: 'sell',
           value: sell_all ? p.value : p.lossvalue,
           gain: sell_all ? p.gain : 0,
-          loss: sell_all ? p.loss : 0,
+          loss: p.loss,
         }
       })
       .reduce<Record<string, Trade>>(combine_trades, {})
@@ -53,7 +53,6 @@ export function get_adjusted_portfolio(
   offset_gains: Set<string>,
 ) {
   return targets
-    .filter((t) => t.target.weight > 0)
     .map<[TargetPositionAggregation, number]>((t) => [
       t,
       t.positions.reduce(
@@ -72,75 +71,61 @@ export function calculate_trades(
    * This just sells all loses and requested positions
    */
   const sell_orders = get_sell_trades(targets, offset_gains);
-
-  const sell_tickers = wash_sale.concat(sell_orders.map((l) => l.ticker));
-  const total_liquid = sell_orders.reduce((sum, p) => sum + p.value, 0);
-
+  const sell_tickers = new Set(wash_sale.concat(sell_orders.map((l) => l.ticker)));
+  
   /**
    * This is the part that figures out what balance to target
    */
   const adj_values = get_adjusted_portfolio(targets, offset_gains);
 
   // the sum of all adjusted values
-  const adj_total = adj_values
+  const adj_total = adj_values.filter(([t, _]) => t.target.weight > 0)
     .reduce((sum, [_, amt]) => sum + amt, 0);
   // find the max ratio between target weight and current weight 
-  const max_total = adj_values.map(([t, amt]) => (amt / t.target.weight))
+  const max_total = adj_values.filter(([t, _]) => t.target.weight > 0)
+    .map(([t, amt]) => (amt / t.target.weight))
     .reduce((max, t) => Math.max(max, t), 0);
   // distance in value between current and next balanced position
-  const catchup_amount = max_total - adj_total;
-  const initial_total = targets.reduce(
-    (t_sum, t) => t_sum + t.positions.reduce<number>(
-      (p_sum, p) => p_sum + p.value,
-      0,
-    ), 
-    0
-  );
-  console.log(total_liquid, adj_total, adj_total + total_liquid, initial_total)
+  const total_liquid = sell_orders.reduce((sum, p) => sum + p.value, 0);
+  const catchup_liquid = Math.min(total_liquid, max_total - adj_total)
+  const normal_liquid = total_liquid - catchup_liquid
+
   /**
    * This just calculates the buys based on the above and warns about 
    * buys that it can't make.
    */
   const buy_orders = adj_values
-    .flatMap(([dt, v]) => {
-      const catchup_weight = catchup_amount > 0 
-        ? Math.max((max_total * dt.target.weight - v) / catchup_amount, 0)
-        : 0
+    .flatMap<Trade>(([dt, v]) => {
+      // max_total * weight is what this dt should be at, subtract v to see what the diff is
+      const catchup_value = (max_total * dt.target.weight) - v
+      const normal_value = normal_liquid * dt.target.weight;
       if (dt.directTargets?.length) {
         // only use first 500 so might not be out of 100
         const dt_weight_total = dt.directTargets.reduce((sum, { weight }) => sum + weight, 0);
         return dt.directTargets.map(
           ({ ticker, weight }) => ({
+            key: `buy${ticker}`,
             ticker,
-            order: sell_tickers.includes(ticker) ? 'wash' : 'buy',
-            catchup_weight: catchup_weight * (weight / dt_weight_total),
-            target_weight:  dt.target.weight * weight,
+            order: sell_tickers.has(ticker) ? 'wash' : 'buy',
+            gain: 0,
+            loss: 0,
+            value: -(weight / dt_weight_total) * (catchup_value + normal_value)
           })
         );
       }
 
       const filtered = dt.target.tickers.filter(
-        (t) => !sell_tickers.includes(t)
+        (t) => !sell_tickers.has(t)
       );
+      const ticker = filtered.length ? filtered[0] : dt.target.tickers.join(', ');
       return [{ 
-        ticker: filtered.length ? filtered[0] : dt.target.tickers.join(', '), 
+        key: `buy${ticker}`,
+        ticker,
         order: filtered.length ? 'buy' : 'wash', 
-        catchup_weight, 
-        target_weight: dt.target.weight 
-      }];
-    })
-    .map<Trade>(({ order, ticker, catchup_weight, target_weight }) => {
-      return ({
-        key: `${order}${ticker}`,
-        order: order as 'buy' | 'wash',
-        ticker: ticker,
         gain: 0,
         loss: 0,
-        value:
-          -1 *
-          (Math.min(catchup_amount, total_liquid) * catchup_weight +
-            Math.max(0, total_liquid - catchup_amount) * target_weight),
-      });
+        value: -(catchup_value + normal_value)
+      }];
     })
     .filter(({ value }) => value < 0)
     .reduce<Record<string, Trade>>(combine_trades, {})
