@@ -8,7 +8,7 @@ import {
   SortableTable,
   MoneyColumn,
 } from '../ui/SortableTable';
-import { DisplayTargetState } from '../data/display';
+import { TargetPositionAggregation } from '../data/display';
 import { AccountPosition } from '../data/positions';
 import formatDollas from '../lib/format_dollas';
 import {
@@ -26,7 +26,7 @@ const NESTED_COLUMNS = [
 function TargetTableRowFragment({
   row,
   cols,
-}: TSortableTableRowProps<DisplayTargetState>) {
+}: TSortableTableRowProps<TargetPositionAggregation>) {
   return (
     <Fragment>
       {cols.map((c) => (
@@ -48,7 +48,7 @@ function TargetTableRowFragment({
 function TargetTableFooter({
   rows,
   cols,
-}: TSortableTableChildProps<DisplayTargetState>) {
+}: TSortableTableChildProps<TargetPositionAggregation>) {
   return (
     <tfoot>
       <tr className="bg-gray-200">
@@ -101,7 +101,7 @@ function PositionTableBody({
 
 function NestedPositionTable({
   row,
-}: TCollapsibleNestedChildProps<DisplayTargetState>) {
+}: TCollapsibleNestedChildProps<TargetPositionAggregation>) {
   if (!row.positions.length) return null;
   return (
     <SortableTable
@@ -113,25 +113,25 @@ function NestedPositionTable({
   );
 }
 
-type TProps = { targets: DisplayTargetState[] };
+type TProps = { targets: TargetPositionAggregation[] };
 function PositionTable({ targets }: TProps) {
   const total_value = targets
     .map((dt) => dt.positions)
     .reduce((acc, dt) => acc + dt.reduce((acc, h) => acc + h.value, 0), 0);
 
   const TARGET_COLUMNS = [
-    new StringColumn<DisplayTargetState>('Name', (r) => r.target.name),
-    new MoneyColumn<DisplayTargetState>('Value', (r) =>
+    new StringColumn<TargetPositionAggregation>('Name', (r) => r.target.name),
+    new MoneyColumn<TargetPositionAggregation>('Value', (r) =>
       r.positions.reduce<number>((sum, p) => sum + p.value, 0)
     ),
-    new MoneyColumn<DisplayTargetState>(
+    new MoneyColumn<TargetPositionAggregation>(
       'Target',
       (r) => r.target.weight * total_value
     ),
-    new MoneyColumn<DisplayTargetState>('Profit', (r) =>
+    new MoneyColumn<TargetPositionAggregation>('Profit', (r) =>
       r.positions.reduce<number>((sum, p) => sum + p.gain, 0)
     ),
-    new MoneyColumn<DisplayTargetState>('Loss', (r) =>
+    new MoneyColumn<TargetPositionAggregation>('Loss', (r) =>
       r.positions.reduce<number>((sum, p) => sum + p.loss, 0)
     ),
   ];

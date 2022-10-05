@@ -1,27 +1,22 @@
 import { useState } from 'react';
 import { calculate_trades } from '../data/trades';
-import { useAppSelector } from '../data/store';
 import TradeTable from './TradeTable';
 import SectionCard from './SectionCard';
 import TradeEditor from './TradeEditor';
 import {
-  DisplayTargetState,
+  TargetPositionAggregation,
   selectAllTickersFromPositions,
-  selectPositionsByTicker,
 } from '../data/display';
 import { useSelector } from 'react-redux';
 
-type TProps = { targets: DisplayTargetState[] };
+type TProps = { targets: TargetPositionAggregation[] };
 function TradeSection({ targets }: TProps) {
   const [wash_sale, setWashSale] = useState<string[]>([]);
   const [offset_gains, setOffsetGains] = useState<string[]>([]);
 
   const all_tickers = useSelector(selectAllTickersFromPositions);
-  const offset_gains_positions = useAppSelector((state) =>
-    selectPositionsByTicker(state, offset_gains)
-  );
 
-  const trades = calculate_trades(targets, offset_gains_positions, wash_sale);
+  const trades = calculate_trades(targets, new Set(offset_gains), wash_sale);
   const on_export = () => {
     const initial = Object.fromEntries(
       targets.flatMap(
@@ -43,7 +38,7 @@ function TradeSection({ targets }: TProps) {
       .filter( ([_, value]) => value >= 1)
       .map( ([ticker, value]) => {
         const weight = (100 * value) / total_value;
-        return `DES,${ticker},STK,SMART/AMEX,,,,,,${weight.toFixed(5)}`
+        return `DES,${ticker.replace('.',' ')},STK,SMART/AMEX,,,,,,${weight.toFixed(5)}`
       })
       .join('\n')
     

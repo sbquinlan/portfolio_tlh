@@ -23,10 +23,11 @@ export const targetSlice = createSlice({
         payload: target,
       }: PayloadAction<Omit<TargetPosition, 'key'> | TargetPosition>
     ) {
-      if (!('key' in target)) {
-        target = { key: uuid(), ...target };
+      if (!('key' in target) || !target['key']) {
+        target = {  ...target , key: uuid() };
       }
-      state[target.key] = target;
+      const casted = target as TargetPosition;
+      state[casted.key] = casted;
     },
   },
 });

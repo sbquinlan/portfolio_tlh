@@ -6,7 +6,7 @@ import { RootState } from './store';
 import { FundHolding } from './funds';
 
 // Pairing of a target and the current
-export interface DisplayTargetState extends IKeyable {
+export interface TargetPositionAggregation extends IKeyable {
   target: TargetPosition,
   positions: AccountPosition[],
   directTargets?: FundHolding[],
@@ -34,8 +34,8 @@ const UNALLOCATED_TARGET = Object.freeze({
 export const selectTargetsJoinPositions = createSelector(
   [selectTargets, selectPositions, selectFunds],
   (targets, positions, funds) => {
-    const display_targets: DisplayTargetState[] = Object.values(targets)
-      .map<DisplayTargetState>(target => ({ 
+    const display_targets: TargetPositionAggregation[] = Object.values(targets)
+      .map<TargetPositionAggregation>(target => ({ 
         key: target.key, 
         target, 
         positions: [], 
@@ -62,7 +62,7 @@ export const selectTargetsJoinPositions = createSelector(
           }
           return undefined
         })
-        .filter((t): t is [DisplayTargetState, number] => !!t);
+        .filter((t): t is [TargetPositionAggregation, number] => !!t);
       if (matching.length === 0) {
         matching = display_targets.filter(
           dt => dt.target === UNALLOCATED_TARGET

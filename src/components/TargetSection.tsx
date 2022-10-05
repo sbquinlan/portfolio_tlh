@@ -4,10 +4,10 @@ import { TargetPosition, removeTarget, saveTarget } from '../data/targets';
 import TargetRow from './TargetRow';
 import { TargetEditor } from './TargetEditor';
 import SectionCard from './SectionCard';
-import { DisplayTargetState } from '../data/display';
+import { TargetPositionAggregation } from '../data/display';
 
 type TProps = {
-  targets: DisplayTargetState[];
+  targets: TargetPositionAggregation[];
 };
 function TargetSection({ targets }: TProps) {
   const dispatch = useAppDispatch();

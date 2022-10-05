@@ -43,7 +43,7 @@ function TradeTableFooter({ rows, cols }: TSortableTableChildProps<Trade>) {
           <td key={c.key} className="text-center text-sm font-semibold">
             {c instanceof NumberColumn
               ? format_dollas(
-                  rows.reduce((sum, row) => sum + c.getValue(row), 0)
+                  rows.reduce((sum, row) => row.order === 'wash' ? sum : sum + c.getValue(row), 0)
                 )
               : '--'}
           </td>

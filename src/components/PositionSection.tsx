@@ -3,9 +3,9 @@ import PositionEditor from './PositionEditor';
 import PositionTable from './PositionTable';
 import { fromFile } from '../data/positions';
 import SectionCard from './SectionCard';
-import { DisplayTargetState } from '../data/display';
+import { TargetPositionAggregation } from '../data/display';
 
-type TProps = { targets: DisplayTargetState[] };
+type TProps = { targets: TargetPositionAggregation[] };
 function PositionSection({ targets }: TProps) {
   const dispatch = useAppDispatch();
   return (
