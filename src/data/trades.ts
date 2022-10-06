@@ -32,7 +32,7 @@ export function get_sell_trades(
   return Object.values(
     targets
       .flatMap((t) => t.positions)
-      .filter((p) => p.loss < 0 || offset_gains.has(p.ticker))
+      .filter((p) => p.loss < -500 || offset_gains.has(p.ticker))
       .map<Trade>((p) => {
         const sell_all = offset_gains.has(p.ticker);
         return {

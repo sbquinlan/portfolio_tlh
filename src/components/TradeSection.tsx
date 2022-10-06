@@ -18,17 +18,22 @@ function TradeSection({ targets }: TProps) {
 
   const trades = calculate_trades(targets, new Set(offset_gains), wash_sale);
   const on_export = () => {
-    const initial = Object.fromEntries(
-      targets.flatMap(
-        dt => dt.positions.map<[string, number]>( ({ ticker, value }) => [ticker, value] )
-      ),
-    );
+    const initial = targets.flatMap(
+      dt => dt.positions.map<[string, number]>( ({ ticker, value }) => [ticker, value] )
+    ).reduce<Record<string, number>>(
+      (acc, [ticker, value]) => ({ 
+        ... acc, 
+        [ticker]: (ticker in acc ? acc[ticker] : 0) + value
+      }),
+      {}
+    )
+    console.log(initial)
     const updated = trades
       .filter( ({ order }) => order !== 'wash' )
-      .map<[string, number]>( ({ ticker, value }) => [ticker, value] )
       .reduce<Record<string, number>>(
-        (acc, [ticker, value]) => ({ 
+        (acc, { ticker, value }) => ({ 
           ... acc, 
+          // order value is negative if it's a buy and positive if it's a sell
           [ticker]: (ticker in acc ? acc[ticker] : 0) - value
         }),
         initial
