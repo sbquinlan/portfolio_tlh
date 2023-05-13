@@ -9,7 +9,7 @@ export interface TargetPosition extends IKeyable {
   name: string;
   weight: number;
 }
-
+export const CASH_TARGET_KEY = "Cash";
 export const targetSlice = createSlice({
   name: 'targets',
   initialState: {} as Record<string, TargetPosition>,

@@ -13,6 +13,9 @@ type TProps = {
   offsetGains: string[];
   setOffsetGains: Dispatch<SetStateAction<string[]>>;
 
+  lossThreshold: number;
+  setLossThreshold: Dispatch<SetStateAction<number>>;
+
   onExport: () => void;
 };
 function TradeEditor({
@@ -23,6 +26,9 @@ function TradeEditor({
 
   offsetGains,
   setOffsetGains,
+
+  lossThreshold,
+  setLossThreshold,
 
   onExport
 }: TProps) {
@@ -88,11 +94,30 @@ function TradeEditor({
         listComponent={TickerTypeaheadList}
         tokensComponent={TickerTokenList}
       />
+      <span className="flex flex-row gap-2 px-2 py-0.5 mb-2 items-center">
+        <span className="py-1 text-slate-500 text-base">Weight</span>
+        <input
+          className="flex-grow"
+          type="range"
+          min={0}
+          max={100}
+          value={lossThreshold}
+          onChange={(e) =>
+            setLossThreshold(e.target.valueAsNumber)
+          }
+        />
+        <span className="w-10 text-lg">{lossThreshold}%</span>
+      </span>
       <button
-        className="w-full h-8 bg-slate-500 hover:bg-blue-700 text-white font-semibold py-1 px-1 rounded"
+        className="h-8 w-full bg-blue-500 hover:bg-blue-700 text-white font-semibold py-1 px-1 mb-2 rounded"
+      >
+        Generate
+      </button>
+      <button
+        className="h-8 w-full bg-slate-500 hover:bg-blue-700 text-white font-semibold py-1 px-1 mb-2 rounded"
         onClick={onExport}
       >
-        Export for TWS
+        Export
       </button>
     </div>
   );

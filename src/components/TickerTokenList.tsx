@@ -14,7 +14,7 @@ const TickerTokenList = React.forwardRef<
             ref={i === elements.length - 1 ? ref : undefined}
             aria-label={elm}
             key={elm}
-            className="cursor-pointer border border-blue-500 bg-blue-300 pl-1 py-0.5 mr-1 text-sm focus:outline-none focus:text-white focus:bg-blue-500"
+            className="cursor-pointer border border-blue-500 bg-blue-500 pl-1 py-0.5 mr-1 text-sm focus:outline-none focus:text-white focus:bg-blue-500"
             type="button"
             role="button"
             onKeyDown={(e) => {

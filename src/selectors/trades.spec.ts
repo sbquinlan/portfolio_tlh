@@ -1,7 +1,7 @@
 
 import { describe, expect, it } from 'vitest'
-import { AccountPosition } from './positions';
-import { TargetPosition } from './targets';
+import { AccountPosition } from '../data/positions';
+import { TargetPosition } from '../data/targets';
 import { get_adjusted_portfolio, get_sell_trades } from './trades'
 
 let UUID = 0;

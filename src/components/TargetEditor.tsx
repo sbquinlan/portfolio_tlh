@@ -4,15 +4,17 @@ import { Tokenizer } from '../ui/Tokenizer';
 import { rank_options } from '../lib/string_search';
 import TickerTypeaheadList from './TickerTypeaheadList';
 import TickerTokenList from './TickerTokenList';
-import { useAppSelector } from '../data/store';
+import { Fund } from '../data/funds';
 
 type TTargetEditorProps = {
   target: TargetPosition | undefined;
+  funds: Record<string, Fund>;
   saveTarget: (t: Omit<TargetPosition, 'key'>) => void;
   clearTarget: () => void;
 };
 export function TargetEditor({
   target: selected,
+  funds,
   saveTarget,
   clearTarget,
 }: TTargetEditorProps) {
@@ -21,7 +23,6 @@ export function TargetEditor({
   const [target_draft, setTargetDraft] = useState<Omit<TargetPosition, 'key'>>(
     selected ?? { weight: 0, name: '', tickers: [] }
   );
-  const funds = useAppSelector(({ funds }) => funds);
 
   useEffect(() => {
     setTargetDraft(selected ?? { weight: 0, name: '', tickers: [] });
@@ -36,19 +37,31 @@ export function TargetEditor({
       ({ ticker }) => ticker
     );
   }, [symbol_search, target_draft.tickers]);
+  const indexable_funds = useMemo(() => {
+    return Object.values(funds).filter(({ ticker }) => target_draft.tickers.includes(ticker));
+  }, [target_draft.tickers]);
   const direct_index_options = useMemo(() => {
-    if (direct_index.length == 0) return [];
+    if (direct_index.length === 0) return [];
     return rank_options(
       direct_index.toUpperCase(),
-      target_draft.tickers.filter(t => t in funds && funds[t].holdings.length),
+      indexable_funds,
       [],
-      (t) => t
+      ({ ticker }) => ticker
     );
   }, [direct_index, target_draft.tickers]);
 
   const display_weight = Math.round((target_draft.weight ?? 0) * 100);
   return (
     <div className="flex-shrink-0 w-full text-sm mb-2">
+      <input
+        className="w-full form-input mt-0 mb-2 px-2 py-1 border-0 border-b-2 focus-within:border-blue-600 focus:ring-0 cursor-text"
+        type="text"
+        placeholder="Name"
+        value={target_draft.name}
+        onChange={(e) =>
+          setTargetDraft({ ...target_draft, name: e.target.value })
+        }
+      />
       <Tokenizer
         className="form-input mt-0 mb-1 px-2 py-1 border-0 border-b-2 focus-within:border-blue-600 focus:ring-0 cursor-text"
         aria-label="tickers"
@@ -87,18 +100,18 @@ export function TargetEditor({
         aria-label="direct_index"
         placeholder="Direct Index"
         disabled={
-          target_draft.tickers.length === 0 || Boolean(target_draft.direct)
+          indexable_funds.length === 0 || Boolean(target_draft.direct && target_draft.direct in funds)
         }
         options={direct_index_options}
         value={direct_index}
         onChange={(e) => {
           setDirectIndex(e.target.value);
         }}
-        tokens={target_draft.direct ? [target_draft.direct] : []}
-        onSelectOption={(option: string) => {
+        tokens={target_draft.direct && target_draft.direct in funds ? [funds[target_draft.direct].ticker] : []}
+        onSelectOption={(option: Fund) => {
           setTargetDraft((draft) => ({
             ...draft,
-            direct: option,
+            direct: option.isin,
           }));
           setDirectIndex('');
         }}
@@ -110,15 +123,6 @@ export function TargetEditor({
         }}
         listComponent={TickerTypeaheadList}
         tokensComponent={TickerTokenList}
-      />
-      <input
-        className="w-full form-input mt-0 mb-2 px-2 py-1 border-0 border-b-2 focus-within:border-blue-600 focus:ring-0 cursor-text"
-        type="text"
-        placeholder="Name"
-        value={target_draft.name}
-        onChange={(e) =>
-          setTargetDraft({ ...target_draft, name: e.target.value })
-        }
       />
       <span className="flex flex-row gap-2 px-2 py-0.5 mb-2 items-center">
         <span className="py-1 text-slate-500 text-base">Weight</span>

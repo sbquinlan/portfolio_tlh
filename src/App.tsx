@@ -2,7 +2,7 @@ import TargetSection from './components/TargetSection';
 import PositionSection from './components/PositionSection';
 import TradeSection from './components/TradeSection';
 import { useAppSelector } from './data/store';
-import { selectTargetsJoinPositions } from './data/display';
+import { selectTargetsJoinPositions } from './selectors/display';
 
 function App() {
   const targets = useAppSelector(selectTargetsJoinPositions);

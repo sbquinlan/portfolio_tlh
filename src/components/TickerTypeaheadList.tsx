@@ -33,7 +33,7 @@ export default function TickerTypeaheadList<
           onClick={() => onSelectOption(o)}
           className={[
             highlighted === i ? 'text-white bg-blue-500' : 'text-gray-700',
-            'cursor-default select-none hover:bg-blue-200 relative text-sm py-2 pl-3 pr-9',
+            'cursor-default select-none hover:bg-blue-700 relative text-sm py-2 pl-3 pr-9',
           ].join(' ')}
         >
           <span className="block truncate">

@@ -1,4 +1,5 @@
-import { Trade } from '../data/trades';
+import { ACTION_TYPE, Trade } from '../selectors/trades';
+import { sum } from '../lib/aggregate';
 import format_dollas from '../lib/format_dollas';
 import {
   MoneyColumn,
@@ -9,8 +10,9 @@ import {
 } from '../ui/SortableTable';
 
 const COLUMNS = [
-  new StringColumn<Trade>('Buy / Sell', (r) => r.order),
-  new StringColumn<Trade>('Ticker', (r) => r.ticker),
+  new StringColumn<Trade>('Action', (r) => r.action),
+  new StringColumn<Trade>('Ticker', (r) => r.symbol),
+  new StringColumn<Trade>('Quantity', r => r.quantity.toFixed(4)),
   new MoneyColumn<Trade>('Value', (r) => r.value),
   new MoneyColumn<Trade>('Profit', (r) => r.gain),
   new MoneyColumn<Trade>('Loss', (r) => r.loss),
@@ -22,7 +24,7 @@ function TradeTableBody({ rows, cols }: TSortableTableChildProps<Trade>) {
       {rows.map((r) => (
         <tr
           key={r.key}
-          className={r.order === 'buy' ? 'bg-green-200' : 'bg-red-200'}
+          className={r.action === ACTION_TYPE.BUY ? 'bg-green-200' : 'bg-red-200'}
         >
           {cols.map((c) => (
             <td key={c.key} className="text-center text-xs w-24">
@@ -41,11 +43,9 @@ function TradeTableFooter({ rows, cols }: TSortableTableChildProps<Trade>) {
       <tr className="bg-gray-200">
         {cols.map((c) => (
           <td key={c.key} className="text-center text-sm font-semibold">
-            {c instanceof NumberColumn
-              ? format_dollas(
-                  rows.reduce((sum, row) => row.order === 'wash' ? sum : sum + c.getValue(row), 0)
-                )
-              : '--'}
+            {c instanceof MoneyColumn
+              ? format_dollas(sum(rows, r => c.getValue(r)))
+              : (c instanceof NumberColumn ? sum(rows, r => c.getValue(r)) : '--')}
           </td>
         ))}
       </tr>

@@ -24,7 +24,7 @@ export function min_edit_distance(
 export function score(search: string, option: string): number {
   if (option.startsWith(search)) return 0;
   if (~option.indexOf(search)) return 1;
-  return min_edit_distance(search, option);
+  return min_edit_distance(search, option) + 1;
 }
 
 export function rank_options<TOption>(
@@ -39,7 +39,7 @@ export function rank_options<TOption>(
       // keep it unique
       .filter((t) => !~filter.indexOf(value(t)))
       // score
-      .map((t) => [t, score(search, value(t))] as [TOption, number])
+      .map<[TOption, number]>((t) => [t, score(search, value(t))])
       // filter
       .filter(([_, s]) => s < 3)
       // sort

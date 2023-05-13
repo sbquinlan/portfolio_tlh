@@ -1,34 +1,43 @@
-import React, { useRef } from 'react';
+import { useRef, useState } from 'react';
+import { useAppDispatch, useAppSelector } from '../data/store';
+import { fromFile, fromFlexQuery } from '../data/positions';
+import { updateCash } from '../data/cash';
 
-type TProps = {
-  onChange: (file?: File) => void;
-};
+type TProps = { };
 
-export default function PositionEditor({ onChange }: TProps) {
-  async function _onChange(e: React.ChangeEvent<HTMLInputElement>) {
-    onChange(e.target.files![0]);
-  }
+export default function PositionEditor({ }: TProps) {
+  const dispatch = useAppDispatch();
+  const cash = useAppSelector(({ cash }) => cash.value);
+  const [cash_string, setCashString] = useState<string>(cash.toFixed(2));
+
   const input_ref = useRef<HTMLInputElement>(null);
   return (
-    <div className="flex flex-row items-stretch justify-evenly justify-items-stretch text-sm gap-2 h-8 mb-2">
-      <button
-        className="flex-grow bg-slate-500 hover:bg-blue-700 text-white font-semibold py-1 px-1 rounded"
-        onClick={() => {
-          onChange();
+    <div className="w-full text-sm">
+      <input
+        className="w-full form-input mt-0 mb-2 px-2 py-1 border-0 border-b-2 focus-within:border-blue-600 focus:ring-0 cursor-text"
+        type="text"
+        placeholder="Cash"
+        value={cash_string}
+        onChange={(e) => {
+          setCashString(e.target.value)
+          const value_as_number = parseFloat(e.target.value)
+          if (!isNaN(value_as_number)) {
+            dispatch(updateCash(value_as_number))
+          }
         }}
-      >
-        Clear
-      </button>
+      />
       <span className="flex-grow">
         <input
           ref={input_ref}
           className="hidden"
           type="file"
           accept="csv"
-          onChange={_onChange}
+          onChange={(e) => {
+            dispatch(fromFile(e.target.files?.length ? e.target.files![0] : undefined));
+          }}
         />
         <button
-          className="h-full w-full bg-blue-500 hover:bg-blue-700 text-white font-semibold py-1 px-1 rounded"
+          className="h-8 w-full bg-blue-500 hover:bg-blue-700 text-white font-semibold py-1 px-1 mb-2 rounded"
           onClick={() => {
             input_ref.current?.click();
           }}
@@ -36,6 +45,15 @@ export default function PositionEditor({ onChange }: TProps) {
           Upload
         </button>
       </span>
+      <button
+        className="h-8 w-full bg-slate-500 hover:bg-blue-700 text-white font-semibold py-1 px-1 mb-2 rounded"
+        onClick={() => {
+          dispatch(fromFile(undefined));
+        }}
+      >
+        Clear
+      </button>
+      
     </div>
   );
 }

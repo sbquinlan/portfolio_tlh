@@ -1,54 +1,77 @@
 import { useState } from 'react';
-import { calculate_trades } from '../data/trades';
+import Papa from 'papaparse';
+
 import TradeTable from './TradeTable';
 import SectionCard from './SectionCard';
 import TradeEditor from './TradeEditor';
-import {
-  TargetPositionAggregation,
-  selectAllTickersFromPositions,
-} from '../data/display';
-import { useSelector } from 'react-redux';
+import { TargetPositionAggregation } from '../selectors/display';
+import { useAppSelector } from '../data/store';
+import { selectAllTickersFromPositions } from '../selectors/basic';
+import { selectTradesWhereConfigs } from '../selectors/trades';
 
 type TProps = { targets: TargetPositionAggregation[] };
 function TradeSection({ targets }: TProps) {
   const [wash_sale, setWashSale] = useState<string[]>([]);
   const [offset_gains, setOffsetGains] = useState<string[]>([]);
-
-  const all_tickers = useSelector(selectAllTickersFromPositions);
-
-  const trades = calculate_trades(targets, new Set(offset_gains), wash_sale);
-  const on_export = () => {
-    const initial = targets.flatMap(
-      dt => dt.positions.map<[string, number]>( ({ ticker, value }) => [ticker, value] )
-    ).reduce<Record<string, number>>(
-      (acc, [ticker, value]) => ({ 
-        ... acc, 
-        [ticker]: (ticker in acc ? acc[ticker] : 0) + value
-      }),
-      {}
+  const [loss_threshold, setLossThreshold] = useState<number>(5);
+  const trades = useAppSelector(
+    state => selectTradesWhereConfigs(
+      state,
+      targets,
+      { loss_threshold, close_all: new Set(offset_gains) },
+      { wash_sale, normalize: false },
     )
-    console.log(initial)
-    const updated = trades
-      .filter( ({ order }) => order !== 'wash' )
-      .reduce<Record<string, number>>(
-        (acc, { ticker, value }) => ({ 
-          ... acc, 
-          // order value is negative if it's a buy and positive if it's a sell
-          [ticker]: (ticker in acc ? acc[ticker] : 0) - value
-        }),
-        initial
-      )
-    const total_value = Object.values(updated).reduce((acc, n) => acc + n, 0);
-    const weights = Object.entries(updated)
-      .filter( ([_, value]) => value >= 1)
-      .map( ([ticker, value]) => {
-        const weight = (100 * value) / total_value;
-        return `DES,${ticker.replace('.',' ')},STK,SMART/AMEX,,,,,,${weight.toFixed(5)}`
-      })
-      .join('\n')
+  );
+  const all_tickers = useAppSelector(selectAllTickersFromPositions);
+
+  const on_export = () => {
+    const csv_content = Papa.unparse(
+      trades.map(
+        ({ action, quantity, type, symbol, value, account, limit }) => ({
+          Action: action,
+          Symbol: symbol,
+          SecType: type,
+          TimeInForce: 'DAY',
+          Account: account, 
+          ... type === 'FUND' 
+            ? { 
+                Quantity: `${value.toFixed(2)}USD`,
+                Exchange: 'FUNDSERV',
+                OrderType: 'MKT',
+                MonetaryValue: value.toFixed(3),
+                LmtPrice: '',
+                UsePriceMgmtAlgo: ''
+              }
+            : { 
+                Quantity: quantity,
+                Exchange: 'SMART/AMEX',
+                OrderType: 'MIDPRICE',
+                MonetaryValue: '',
+                LmtPrice: limit,
+                UsePriceMgmtAlgo: true
+              },
+        })
+      ),
+      {
+        columns: [
+          'Action',
+          'Quantity',
+          'Symbol',
+          'SecType',
+          'Exchange',
+          'Currency',
+          'TimeInForce',
+          'OrderType',
+          'Account',
+          'MonetaryValue',
+          'LmtPrice',
+          'UsePriceMgmtAlgo'
+        ],
+      }
+    );
     
     const link = document.createElement('a')
-    link.setAttribute('href', `data:text/plain;charset=utf-8,${encodeURIComponent(weights)}`);
+    link.setAttribute('href', `data:text/plain;charset=utf-8,${encodeURIComponent(csv_content)}`);
     link.setAttribute('download', 'export.csv');
     link.style.display = 'none';
     document.body.appendChild(link);
@@ -65,6 +88,8 @@ function TradeSection({ targets }: TProps) {
           setWashSale={setWashSale}
           offsetGains={offset_gains}
           setOffsetGains={setOffsetGains}
+          lossThreshold={loss_threshold}
+          setLossThreshold={setLossThreshold}
           onExport={on_export}
         />
       }

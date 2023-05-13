@@ -8,7 +8,7 @@ import {
   SortableTable,
   MoneyColumn,
 } from '../ui/SortableTable';
-import { TargetPositionAggregation } from '../data/display';
+import { TargetPositionAggregation } from '../selectors/display';
 import { AccountPosition } from '../data/positions';
 import formatDollas from '../lib/format_dollas';
 import {
