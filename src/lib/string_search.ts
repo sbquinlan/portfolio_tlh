@@ -30,14 +30,14 @@ export function score(search: string, option: string): number {
 export function rank_options<TOption>(
   search: string,
   all: TOption[],
-  filter: string[],
+  existing: string[],
   value: (t: TOption) => string
 ) {
   if (search.length == 0) return [];
   return (
     all
       // keep it unique
-      .filter((t) => !~filter.indexOf(value(t)))
+      .filter((t) => !~existing.indexOf(value(t)))
       // score
       .map<[TOption, number]>((t) => [t, score(search, value(t))])
       // filter

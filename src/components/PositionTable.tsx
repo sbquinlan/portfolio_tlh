@@ -9,12 +9,13 @@ import {
   MoneyColumn,
 } from '../ui/SortableTable';
 import { TargetPositionAggregation } from '../selectors/display';
-import { AccountPosition } from '../data/positions';
+import { AccountPosition } from '../data/positions/positions';
 import formatDollas from '../lib/format_dollas';
 import {
   CollapsibleTable,
   TCollapsibleNestedChildProps,
 } from '../ui/CollapsibleTable';
+import { CASH_TARGET_KEY } from '../data/targets';
 
 const NESTED_COLUMNS = [
   new StringColumn<AccountPosition>('Symbol', (r) => r.ticker),
@@ -113,16 +114,17 @@ function NestedPositionTable({
   );
 }
 
-type TProps = { targets: TargetPositionAggregation[] };
-function PositionTable({ targets }: TProps) {
+type TProps = { cash: number, targets: TargetPositionAggregation[] };
+function PositionTable({ cash, targets }: TProps) {
   const total_value = targets
-    .map((dt) => dt.positions)
-    .reduce((acc, dt) => acc + dt.reduce((acc, h) => acc + h.value, 0), 0);
+    .map((dt) => dt.target.key === CASH_TARGET_KEY ? [cash] : dt.positions.map(p => p.value))
+    .reduce((acc, dt) => acc + dt.reduce((acc, h) => acc + h, 0), 0);
 
   const TARGET_COLUMNS = [
     new StringColumn<TargetPositionAggregation>('Name', (r) => r.target.name),
-    new MoneyColumn<TargetPositionAggregation>('Value', (r) =>
-      r.positions.reduce<number>((sum, p) => sum + p.value, 0)
+    new MoneyColumn<TargetPositionAggregation>('Value', (r) => r.target.key === CASH_TARGET_KEY
+        ? cash
+        : r.positions.reduce<number>((sum, p) => sum + p.value, 0)
     ),
     new MoneyColumn<TargetPositionAggregation>(
       'Target',

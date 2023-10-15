@@ -1,18 +1,26 @@
-import { useAppDispatch } from '../data/store';
+import { useAppSelector } from '../data/store';
 import PositionEditor from './PositionEditor';
 import PositionTable from './PositionTable';
 import SectionCard from './SectionCard';
-import { TargetPositionAggregation } from '../selectors/display';
+import { selectCash, selectPositions } from '../selectors/basic';
+import { selectTargetsJoinPositions } from '../selectors/display';
 
-type TProps = { targets: TargetPositionAggregation[] };
-function PositionSection({ targets }: TProps) {
-  const dispatch = useAppDispatch();
+type TProps = { };
+function PositionSection({ }: TProps) {
+  const positions = useAppSelector(selectPositions);
+  const targets = useAppSelector(
+    state => selectTargetsJoinPositions(
+      state, 
+      Object.values(positions)
+    )
+  );
+  const cash = useAppSelector(selectCash);
   return (
     <SectionCard
       title="Positions"
       controls={<PositionEditor />}
     >
-      <PositionTable targets={targets} />
+      <PositionTable cash={cash} targets={targets} />
     </SectionCard>
   );
 }

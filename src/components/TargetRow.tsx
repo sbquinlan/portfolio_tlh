@@ -19,7 +19,7 @@ function TargetRow({ target, funds, onSelectTarget, onDeleteTarget }: TProps) {
     [target, onSelectTarget]
   );
   const direct_fund = target.direct && target.direct in funds
-    ? funds[target.direct].ticker
+    ? target.direct
     : undefined;
   return (
     <li
@@ -31,14 +31,14 @@ function TargetRow({ target, funds, onSelectTarget, onDeleteTarget }: TProps) {
     >
       <div className="flex-1 truncate">
         <span className="text-sm font-semibold">{target.name}</span>
-        {target.tickers.map((t) => (
+        {target.tickers.map((t, i) => (
           <span
-            key={t}
+            key={t.isin ?? `custom-${i}`}
             className={`text-sm ${
-              direct_fund === t ? ' text-blue-600' : 'text-gray-500'
+              (direct_fund && direct_fund === t.isin) ? ' text-blue-600' : 'text-gray-500'
             } ml-1`}
           >
-            {t}
+            {t.ticker}
           </span>
         ))}
       </div>

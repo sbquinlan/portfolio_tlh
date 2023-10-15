@@ -1,9 +1,8 @@
 import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux';
 import { configureStore } from '@reduxjs/toolkit';
 import targets from './targets';
-import positions from './positions';
+import positions from './positions/positions';
 import funds from './funds';
-import cash from './cash';
 import prices from './prices';
 
 export const LS_KEY = 'RDX_STATE';
@@ -30,7 +29,7 @@ async function saveState({ targets }: RootState) {
 }
 
 export const store = configureStore({
-  reducer: { funds, prices, positions, targets, cash },
+  reducer: { funds, prices, positions, targets },
   preloadedState: loadState(),
 });
 

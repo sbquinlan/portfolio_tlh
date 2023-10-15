@@ -3,7 +3,7 @@ import type { PayloadAction } from '@reduxjs/toolkit';
 
 import FUNDS from './funds.json'
 import type { FundRow } from './funds';
-import { fromFile } from './positions';
+import { fromFlexQuery } from './positions/positions';
 
 export const pricesSlice = createSlice({
   name: 'prices',
@@ -17,7 +17,7 @@ export const pricesSlice = createSlice({
     }
   },
   extraReducers: (builder) => {
-    builder.addCase(fromFile.fulfilled, (state, { payload: positions }) => {
+    builder.addCase(fromFlexQuery.fulfilled, (state, { payload: { positions } }) => {
       Object.assign(
         state, 
         Object.fromEntries(

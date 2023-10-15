@@ -4,20 +4,18 @@ import Papa from 'papaparse';
 import TradeTable from './TradeTable';
 import SectionCard from './SectionCard';
 import TradeEditor from './TradeEditor';
-import { TargetPositionAggregation } from '../selectors/display';
 import { useAppSelector } from '../data/store';
 import { selectAllTickersFromPositions } from '../selectors/basic';
 import { selectTradesWhereConfigs } from '../selectors/trades';
 
-type TProps = { targets: TargetPositionAggregation[] };
-function TradeSection({ targets }: TProps) {
+type TProps = { };
+function TradeSection({ }: TProps) {
   const [wash_sale, setWashSale] = useState<string[]>([]);
   const [offset_gains, setOffsetGains] = useState<string[]>([]);
   const [loss_threshold, setLossThreshold] = useState<number>(5);
   const trades = useAppSelector(
     state => selectTradesWhereConfigs(
       state,
-      targets,
       { loss_threshold, close_all: new Set(offset_gains) },
       { wash_sale, normalize: false },
     )

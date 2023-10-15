@@ -33,13 +33,17 @@ export function TargetEditor({
     return rank_options(
       symbol_search.toUpperCase(),
       Object.values(funds),
-      target_draft.tickers ?? [],
+      target_draft.tickers.map(({ ticker }) => ticker) ?? [],
       ({ ticker }) => ticker
     );
   }, [symbol_search, target_draft.tickers]);
+
   const indexable_funds = useMemo(() => {
-    return Object.values(funds).filter(({ ticker }) => target_draft.tickers.includes(ticker));
+    return target_draft.tickers
+      .filter(({ isin }) => isin && isin in funds)
+      .map(({ isin }) => funds[isin!]);
   }, [target_draft.tickers]);
+
   const direct_index_options = useMemo(() => {
     if (direct_index.length === 0) return [];
     return rank_options(
@@ -71,25 +75,25 @@ export function TargetEditor({
         onChange={(e) => {
           setSymbolSearch(e.target.value);
         }}
-        tokens={target_draft.tickers ?? []}
-        onSelectOption={(option: { ticker: string; name: string }) => {
+        tokens={target_draft.tickers.map(({ ticker }) => ticker) ?? []}
+        onSelectOption={({ ticker, isin }: Fund) => {
           setTargetDraft((draft) => ({
             ...draft,
-            tickers: draft.tickers.concat([option.ticker]),
+            tickers: draft.tickers.concat([{ ticker, isin }]),
           }));
           setSymbolSearch('');
         }}
         onSelectCustom={(custom) => {
           setTargetDraft((draft) => ({
             ...draft,
-            tickers: [...new Set(draft.tickers.concat([custom])).values()],
+            tickers: [...new Set(draft.tickers.concat([{ ticker: custom }])).values()],
           }));
           setSymbolSearch('');
         }}
         onRemoveToken={(ticker: string) => {
           setTargetDraft((draft) => ({
             ...draft,
-            tickers: draft.tickers.filter((t) => t !== ticker),
+            tickers: draft.tickers.filter(({ ticker: t }) => t !== ticker),
           }));
         }}
         listComponent={TickerTypeaheadList}

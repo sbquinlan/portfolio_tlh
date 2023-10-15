@@ -39,7 +39,7 @@ function TradeEditor({
         wash_sale_search.toUpperCase(),
         allTickers,
         washSale,
-        (t) => t
+        s => s,
       ),
     [washSale, wash_sale_search, allTickers]
   );
@@ -51,7 +51,7 @@ function TradeEditor({
         offset_gains_search.toUpperCase(),
         allTickers,
         offsetGains,
-        (t) => t
+        s => s,
       ),
     [offsetGains, offset_gains_search, allTickers]
   );
@@ -70,7 +70,7 @@ function TradeEditor({
           setWashSale((tickers) => tickers.filter((t) => t !== d));
         }}
         onSelectOption={(a: string) => {
-          setWashSale((tickers) => tickers.concat([a]));
+          setWashSale((tickers) => tickers.concat(a));
           setWashSaleSearch('');
         }}
         listComponent={TickerTypeaheadList}
@@ -88,7 +88,7 @@ function TradeEditor({
           setOffsetGains((tickers) => tickers.filter((t) => t !== d));
         }}
         onSelectOption={(a: string) => {
-          setOffsetGains((tickers) => tickers.concat([a]));
+          setOffsetGains((tickers) => tickers.concat(a));
           setOffsetGainsSearch('');
         }}
         listComponent={TickerTypeaheadList}
