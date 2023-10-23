@@ -114,15 +114,20 @@ function NestedPositionTable({
   );
 }
 
-type TProps = { cash: number, targets: TargetPositionAggregation[] };
+type TProps = { cash: number; targets: TargetPositionAggregation[] };
 function PositionTable({ cash, targets }: TProps) {
   const total_value = targets
-    .map((dt) => dt.target.key === CASH_TARGET_KEY ? [cash] : dt.positions.map(p => p.value))
+    .map((dt) =>
+      dt.target.key === CASH_TARGET_KEY
+        ? [cash]
+        : dt.positions.map((p) => p.value)
+    )
     .reduce((acc, dt) => acc + dt.reduce((acc, h) => acc + h, 0), 0);
 
   const TARGET_COLUMNS = [
     new StringColumn<TargetPositionAggregation>('Name', (r) => r.target.name),
-    new MoneyColumn<TargetPositionAggregation>('Value', (r) => r.target.key === CASH_TARGET_KEY
+    new MoneyColumn<TargetPositionAggregation>('Value', (r) =>
+      r.target.key === CASH_TARGET_KEY
         ? cash
         : r.positions.reduce<number>((sum, p) => sum + p.value, 0)
     ),

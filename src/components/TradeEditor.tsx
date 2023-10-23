@@ -30,7 +30,7 @@ function TradeEditor({
   lossThreshold,
   setLossThreshold,
 
-  onExport
+  onExport,
 }: TProps) {
   const [wash_sale_search, setWashSaleSearch] = useState('');
   const wash_sale_options = useMemo(
@@ -39,7 +39,7 @@ function TradeEditor({
         wash_sale_search.toUpperCase(),
         allTickers,
         washSale,
-        s => s,
+        (s) => s
       ),
     [washSale, wash_sale_search, allTickers]
   );
@@ -51,7 +51,7 @@ function TradeEditor({
         offset_gains_search.toUpperCase(),
         allTickers,
         offsetGains,
-        s => s,
+        (s) => s
       ),
     [offsetGains, offset_gains_search, allTickers]
   );
@@ -102,15 +102,11 @@ function TradeEditor({
           min={0}
           max={100}
           value={lossThreshold}
-          onChange={(e) =>
-            setLossThreshold(e.target.valueAsNumber)
-          }
+          onChange={(e) => setLossThreshold(e.target.valueAsNumber)}
         />
         <span className="w-10 text-lg">{lossThreshold}%</span>
       </span>
-      <button
-        className="h-8 w-full bg-blue-500 hover:bg-blue-700 text-white font-semibold py-1 px-1 mb-2 rounded"
-      >
+      <button className="h-8 w-full bg-blue-500 hover:bg-blue-700 text-white font-semibold py-1 px-1 mb-2 rounded">
         Generate
       </button>
       <button

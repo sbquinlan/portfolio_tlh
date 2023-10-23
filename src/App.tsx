@@ -3,7 +3,6 @@ import PositionSection from './components/PositionSection';
 import TradeSection from './components/TradeSection';
 
 function App() {
-  
   return (
     <div className="container flex flex-col gap-4 mx-auto">
       <TargetSection />

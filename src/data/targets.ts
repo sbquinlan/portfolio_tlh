@@ -15,16 +15,16 @@ export interface TargetPosition extends IKeyable {
   name: string;
   weight: number;
 }
-export const CASH_TARGET_KEY = "Cash";
+export const CASH_TARGET_KEY = 'Cash';
 export const CASH_TARGET: Omit<TargetPosition, 'weight'> = Object.freeze({
   key: CASH_TARGET_KEY,
   tickers: [],
-  name: "Cash",
+  name: 'Cash',
 });
 
 export const targetSlice = createSlice({
   name: 'targets',
-  initialState: { } as Record<string, TargetPosition>,
+  initialState: {} as Record<string, TargetPosition>,
   reducers: {
     removeTarget(state, { payload: target }: PayloadAction<TargetPosition>) {
       delete state[target.key];
@@ -36,7 +36,7 @@ export const targetSlice = createSlice({
       }: PayloadAction<Omit<TargetPosition, 'key'> | TargetPosition>
     ) {
       if (!('key' in target) || !target['key']) {
-        target = {  ...target , key: uuid() };
+        target = { ...target, key: uuid() };
       }
       const casted = target as TargetPosition;
       state[casted.key] = casted;

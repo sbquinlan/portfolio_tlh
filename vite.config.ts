@@ -11,7 +11,7 @@ export default defineConfig({
         target: 'https://ndcdyn.interactivebrokers.com',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/flex/, ''),
-      }
-    }
-  }
+      },
+    },
+  },
 });

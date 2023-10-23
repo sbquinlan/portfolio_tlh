@@ -5,21 +5,15 @@ import SectionCard from './SectionCard';
 import { selectCash, selectPositions } from '../selectors/basic';
 import { selectTargetsJoinPositions } from '../selectors/display';
 
-type TProps = { };
-function PositionSection({ }: TProps) {
+type TProps = {};
+function PositionSection({}: TProps) {
   const positions = useAppSelector(selectPositions);
-  const targets = useAppSelector(
-    state => selectTargetsJoinPositions(
-      state, 
-      Object.values(positions)
-    )
+  const targets = useAppSelector((state) =>
+    selectTargetsJoinPositions(state, Object.values(positions))
   );
   const cash = useAppSelector(selectCash);
   return (
-    <SectionCard
-      title="Positions"
-      controls={<PositionEditor />}
-    >
+    <SectionCard title="Positions" controls={<PositionEditor />}>
       <PositionTable cash={cash} targets={targets} />
     </SectionCard>
   );

@@ -3,35 +3,35 @@ import { group_by, sum_entries } from '../../lib/aggregate';
 import type { AccountPosition, AssetType } from './positions';
 
 interface IBKRLotRow {
-  ISIN: string,
-  ClientAccountID: string,
-  Symbol: string,
-  AssetClass: AssetType,
-  FifoPnlUnrealized: string, // float
-  MarkPrice: string, // float (basically the close)
-  PositionValue: string, // float
-  CostBasisPrice: string, // float
-  CostBasisMoney: string,  // float
-  Quantity: string, // float
-  HoldingPeriodDateTime: string, // "2022-10-05 14:56:18"
+  ISIN: string;
+  ClientAccountID: string;
+  Symbol: string;
+  AssetClass: AssetType;
+  FifoPnlUnrealized: string; // float
+  MarkPrice: string; // float (basically the close)
+  PositionValue: string; // float
+  CostBasisPrice: string; // float
+  CostBasisMoney: string; // float
+  Quantity: string; // float
+  HoldingPeriodDateTime: string; // "2022-10-05 14:56:18"
 }
 
 interface IBKRCashRow {
-  EndingSettledCash: number,
-  EndingSettledCashSecurities: number, 
-  EndingSettledCashCommodities: number,
+  EndingSettledCash: number;
+  EndingSettledCashSecurities: number;
+  EndingSettledCashCommodities: number;
 }
 
-function create_position({ 
-  Symbol, 
+function create_position({
+  Symbol,
   ISIN,
   ClientAccountID,
-  AssetClass, 
+  AssetClass,
   FifoPnlUnrealized,
   MarkPrice,
   PositionValue,
-  Quantity, 
-  HoldingPeriodDateTime 
+  Quantity,
+  HoldingPeriodDateTime,
 }: IBKRLotRow) {
   if (!ISIN) throw new Error(`No ISIN for ${Symbol}`);
   return {
@@ -45,17 +45,17 @@ function create_position({
     value: parseFloat(PositionValue),
     pnl: parseFloat(FifoPnlUnrealized),
     open: Date.parse(HoldingPeriodDateTime),
-  }
+  };
 }
 
 function position_pnl(
   long_term: boolean,
   pnl: number,
   value: number,
-  quantity: number,
+  quantity: number
 ) {
-  const st_or_lt = long_term ? 'lt' : 'st'
-  const gain_or_loss = pnl >= 0 ? 'gain' : 'loss'
+  const st_or_lt = long_term ? 'lt' : 'st';
+  const gain_or_loss = pnl >= 0 ? 'gain' : 'loss';
   return {
     loss: 0,
     loss_value: 0,
@@ -71,13 +71,13 @@ function position_pnl(
     lt_loss_value: 0,
     st_loss: 0,
     st_loss_value: 0,
-    
+
     [`${gain_or_loss}_quantity`]: quantity,
     [`${gain_or_loss}`]: pnl,
     [`${gain_or_loss}_value`]: value,
     [`${st_or_lt}_${gain_or_loss}`]: pnl,
     [`${st_or_lt}_${gain_or_loss}_value`]: value,
-  }
+  };
 }
 
 export function loadCSV(file?: Blob): Promise<Array<Array<any>>> {
@@ -126,20 +126,28 @@ export function partitionCashAndPositions(rows: Array<Array<any>>) {
 }
 
 export function aggregatePositions(positions: IBKRLotRow[]) {
-  const year_ago: number = Date.now() - (1000 * 60 * 60 * 24 * 366);
-  return positions.filter(({ AssetClass }) => AssetClass !== 'OPT')
+  const year_ago: number = Date.now() - 1000 * 60 * 60 * 24 * 366;
+  return positions
+    .filter(({ AssetClass }) => AssetClass !== 'OPT')
     .map((record) => create_position(record))
     .reduce<Record<string, AccountPosition>>(
       group_by(
-        elm => elm.key,
-        (result, { ticker, isin, account, type, last, quantity, open, pnl, value }) => ({
-          ... (result || { key: isin, ticker, isin, account, type, last }),
-          ... sum_entries(
-            { ... position_pnl(open < year_ago, pnl, value, quantity), quantity, value },
-            result,
-          )  
+        (elm) => elm.key,
+        (
+          result,
+          { ticker, isin, account, type, last, quantity, open, pnl, value }
+        ) => ({
+          ...(result || { key: isin, ticker, isin, account, type, last }),
+          ...sum_entries(
+            {
+              ...position_pnl(open < year_ago, pnl, value, quantity),
+              quantity,
+              value,
+            },
+            result
+          ),
         })
       ),
       {}
-    )
+    );
 }

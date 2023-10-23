@@ -2,9 +2,9 @@ import { useState } from 'react';
 import { useAppDispatch } from '../data/store';
 import { fromFlexQuery } from '../data/positions/positions';
 
-type TProps = { };
+type TProps = {};
 
-export default function PositionEditor({ }: TProps) {
+export default function PositionEditor({}: TProps) {
   const dispatch = useAppDispatch();
   const [token, setToken] = useState('');
   const [query_id, setQueryId] = useState('');

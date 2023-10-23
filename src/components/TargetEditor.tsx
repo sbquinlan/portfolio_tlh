@@ -86,7 +86,9 @@ export function TargetEditor({
         onSelectCustom={(custom) => {
           setTargetDraft((draft) => ({
             ...draft,
-            tickers: [...new Set(draft.tickers.concat([{ ticker: custom }])).values()],
+            tickers: [
+              ...new Set(draft.tickers.concat([{ ticker: custom }])).values(),
+            ],
           }));
           setSymbolSearch('');
         }}
@@ -104,14 +106,19 @@ export function TargetEditor({
         aria-label="direct_index"
         placeholder="Direct Index"
         disabled={
-          indexable_funds.length === 0 || Boolean(target_draft.direct && target_draft.direct in funds)
+          indexable_funds.length === 0 ||
+          Boolean(target_draft.direct && target_draft.direct in funds)
         }
         options={direct_index_options}
         value={direct_index}
         onChange={(e) => {
           setDirectIndex(e.target.value);
         }}
-        tokens={target_draft.direct && target_draft.direct in funds ? [funds[target_draft.direct].ticker] : []}
+        tokens={
+          target_draft.direct && target_draft.direct in funds
+            ? [funds[target_draft.direct].ticker]
+            : []
+        }
         onSelectOption={(option: Fund) => {
           setTargetDraft((draft) => ({
             ...draft,

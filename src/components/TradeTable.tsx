@@ -12,7 +12,7 @@ import {
 const COLUMNS = [
   new StringColumn<Trade>('Action', (r) => r.action),
   new StringColumn<Trade>('Ticker', (r) => r.symbol),
-  new StringColumn<Trade>('Quantity', r => r.quantity.toFixed(4)),
+  new StringColumn<Trade>('Quantity', (r) => r.quantity.toFixed(4)),
   new MoneyColumn<Trade>('Value', (r) => r.value),
   new MoneyColumn<Trade>('Profit', (r) => r.gain),
   new MoneyColumn<Trade>('Loss', (r) => r.loss),
@@ -24,7 +24,9 @@ function TradeTableBody({ rows, cols }: TSortableTableChildProps<Trade>) {
       {rows.map((r) => (
         <tr
           key={r.key}
-          className={r.action === ACTION_TYPE.BUY ? 'bg-green-200' : 'bg-red-200'}
+          className={
+            r.action === ACTION_TYPE.BUY ? 'bg-green-200' : 'bg-red-200'
+          }
         >
           {cols.map((c) => (
             <td key={c.key} className="text-center text-xs w-24">
@@ -44,8 +46,10 @@ function TradeTableFooter({ rows, cols }: TSortableTableChildProps<Trade>) {
         {cols.map((c) => (
           <td key={c.key} className="text-center text-sm font-semibold">
             {c instanceof MoneyColumn
-              ? format_dollas(sum(rows, r => c.getValue(r)))
-              : (c instanceof NumberColumn ? sum(rows, r => c.getValue(r)) : '--')}
+              ? format_dollas(sum(rows, (r) => c.getValue(r)))
+              : c instanceof NumberColumn
+              ? sum(rows, (r) => c.getValue(r))
+              : '--'}
           </td>
         ))}
       </tr>

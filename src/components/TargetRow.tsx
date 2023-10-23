@@ -18,15 +18,16 @@ function TargetRow({ target, funds, onSelectTarget, onDeleteTarget }: TProps) {
     () => onSelectTarget(target),
     [target, onSelectTarget]
   );
-  const direct_fund = target.direct && target.direct in funds
-    ? target.direct
-    : undefined;
+  const direct_fund =
+    target.direct && target.direct in funds ? target.direct : undefined;
   return (
     <li
       className={[
-        "flex flex-row select-none items-center border-b border-black last:border-b-0 px-2 py-1",
-        target.key === CASH_TARGET_KEY ? "bg-gray-200" : "hover:border-blue-500 hover:bg-blue-700 cursor-pointer",
-      ].join(" ")}
+        'flex flex-row select-none items-center border-b border-black last:border-b-0 px-2 py-1',
+        target.key === CASH_TARGET_KEY
+          ? 'bg-gray-200'
+          : 'hover:border-blue-500 hover:bg-blue-700 cursor-pointer',
+      ].join(' ')}
       onClick={target.key === CASH_TARGET_KEY ? () => {} : priv_onSelect}
     >
       <div className="flex-1 truncate">
@@ -35,19 +36,19 @@ function TargetRow({ target, funds, onSelectTarget, onDeleteTarget }: TProps) {
           <span
             key={t.isin ?? `custom-${i}`}
             className={`text-sm ${
-              (direct_fund && direct_fund === t.isin) ? ' text-blue-600' : 'text-gray-500'
+              direct_fund && direct_fund === t.isin
+                ? ' text-blue-600'
+                : 'text-gray-500'
             } ml-1`}
           >
             {t.ticker}
           </span>
         ))}
       </div>
-      <span className="text-sm font-semibold">
-        {target.weight * 100}%
-      </span>
-      {target.key === CASH_TARGET_KEY 
-      ? <span className='w-5 h-5' />
-      : (
+      <span className="text-sm font-semibold">{target.weight * 100}%</span>
+      {target.key === CASH_TARGET_KEY ? (
+        <span className="w-5 h-5" />
+      ) : (
         <button aria-label="Delete" onClick={priv_onDelete}>
           <Xmark className="w-5 h-5" />
         </button>

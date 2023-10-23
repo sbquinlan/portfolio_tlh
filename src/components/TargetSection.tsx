@@ -1,15 +1,20 @@
 import { useMemo, useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../data/store';
-import { TargetPosition, removeTarget, saveTarget, CASH_TARGET_KEY } from '../data/targets';
+import {
+  TargetPosition,
+  removeTarget,
+  saveTarget,
+  CASH_TARGET_KEY,
+} from '../data/targets';
 import TargetRow from './TargetRow';
 import { TargetEditor } from './TargetEditor';
 import SectionCard from './SectionCard';
 import { UNALLOCATED_TARGET } from '../selectors/display';
 import { selectFunds, selectTargets } from '../selectors/basic';
 
-type TProps = { };
+type TProps = {};
 
-function TargetSection({ }: TProps) {
+function TargetSection({}: TProps) {
   const dispatch = useAppDispatch();
   const funds = useAppSelector(selectFunds);
   const targets = useAppSelector(selectTargets);
@@ -21,9 +26,11 @@ function TargetSection({ }: TProps) {
     const target_rows = Object.values(targets);
     const cash_target = target_rows.find(({ key }) => key === CASH_TARGET_KEY)!;
     return target_rows
-      .filter(({ key }) => key !== UNALLOCATED_TARGET.key && key !== CASH_TARGET_KEY)
+      .filter(
+        ({ key }) => key !== UNALLOCATED_TARGET.key && key !== CASH_TARGET_KEY
+      )
       .sort((a, b) => b.weight - a.weight)
-      .concat(cash_target ? [cash_target] : [])
+      .concat(cash_target ? [cash_target] : []);
   }, [targets]);
 
   return (
@@ -43,14 +50,14 @@ function TargetSection({ }: TProps) {
     >
       <ul className="border border-gray-500">
         {sorted_targets.map((p) => (
-            <TargetRow
-              key={p.key}
-              target={p}
-              funds={funds}
-              onSelectTarget={setSelected}
-              onDeleteTarget={(t) => dispatch(removeTarget(t))}
-            />
-          ))}
+          <TargetRow
+            key={p.key}
+            target={p}
+            funds={funds}
+            onSelectTarget={setSelected}
+            onDeleteTarget={(t) => dispatch(removeTarget(t))}
+          />
+        ))}
       </ul>
     </SectionCard>
   );

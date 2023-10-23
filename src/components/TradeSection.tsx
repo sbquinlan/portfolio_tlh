@@ -8,16 +8,16 @@ import { useAppSelector } from '../data/store';
 import { selectAllTickersFromPositions } from '../selectors/basic';
 import { selectTradesWhereConfigs } from '../selectors/trades';
 
-type TProps = { };
-function TradeSection({ }: TProps) {
+type TProps = {};
+function TradeSection({}: TProps) {
   const [wash_sale, setWashSale] = useState<string[]>([]);
   const [offset_gains, setOffsetGains] = useState<string[]>([]);
   const [loss_threshold, setLossThreshold] = useState<number>(5);
-  const trades = useAppSelector(
-    state => selectTradesWhereConfigs(
+  const trades = useAppSelector((state) =>
+    selectTradesWhereConfigs(
       state,
       { loss_threshold, close_all: new Set(offset_gains) },
-      { wash_sale, normalize: false },
+      { wash_sale, normalize: false }
     )
   );
   const all_tickers = useAppSelector(selectAllTickersFromPositions);
@@ -30,24 +30,24 @@ function TradeSection({ }: TProps) {
           Symbol: symbol,
           SecType: type,
           TimeInForce: 'DAY',
-          Account: account, 
-          ... type === 'FUND' 
-            ? { 
+          Account: account,
+          ...(type === 'FUND'
+            ? {
                 Quantity: `${value.toFixed(2)}USD`,
                 Exchange: 'FUNDSERV',
                 OrderType: 'MKT',
                 MonetaryValue: value.toFixed(3),
                 LmtPrice: '',
-                UsePriceMgmtAlgo: ''
+                UsePriceMgmtAlgo: '',
               }
-            : { 
+            : {
                 Quantity: quantity,
                 Exchange: 'SMART/AMEX',
                 OrderType: 'MIDPRICE',
                 MonetaryValue: '',
                 LmtPrice: limit,
-                UsePriceMgmtAlgo: true
-              },
+                UsePriceMgmtAlgo: true,
+              }),
         })
       ),
       {
@@ -63,19 +63,22 @@ function TradeSection({ }: TProps) {
           'Account',
           'MonetaryValue',
           'LmtPrice',
-          'UsePriceMgmtAlgo'
+          'UsePriceMgmtAlgo',
         ],
       }
     );
-    
-    const link = document.createElement('a')
-    link.setAttribute('href', `data:text/plain;charset=utf-8,${encodeURIComponent(csv_content)}`);
+
+    const link = document.createElement('a');
+    link.setAttribute(
+      'href',
+      `data:text/plain;charset=utf-8,${encodeURIComponent(csv_content)}`
+    );
     link.setAttribute('download', 'export.csv');
     link.style.display = 'none';
     document.body.appendChild(link);
-    link.click()
+    link.click();
     document.body.removeChild(link);
-  }
+  };
   return (
     <SectionCard
       title="Trades"

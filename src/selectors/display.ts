@@ -7,8 +7,8 @@ import { Fund } from '../data/funds';
 
 // Pairing of a target and the current
 export interface TargetPositionAggregation extends IKeyable {
-  target: TargetPosition,
-  positions: AccountPosition[],
+  target: TargetPosition;
+  positions: AccountPosition[];
 }
 
 export const UNALLOCATED_TARGET = Object.freeze({
@@ -19,45 +19,50 @@ export const UNALLOCATED_TARGET = Object.freeze({
 });
 
 export const joinTargetsToPositions = (
-  targets: Record<string, TargetPosition>, 
-  funds: Record<string, Fund>, 
+  targets: Record<string, TargetPosition>,
+  funds: Record<string, Fund>,
   positions: AccountPosition[]
 ) => {
-  const unallocated = { 
-    key: UNALLOCATED_TARGET.key, 
-    target: UNALLOCATED_TARGET, 
+  const unallocated = {
+    key: UNALLOCATED_TARGET.key,
+    target: UNALLOCATED_TARGET,
     positions: [] as AccountPosition[],
-  }
-  const display_targets: TargetPositionAggregation[] = Object.values(targets)
-    .map<TargetPositionAggregation>(target => ({ 
-      key: target.key, 
-      target, 
-      positions: [], 
-    }))
-  
+  };
+  const display_targets: TargetPositionAggregation[] = Object.values(
+    targets
+  ).map<TargetPositionAggregation>((target) => ({
+    key: target.key,
+    target,
+    positions: [],
+  }));
+
   for (const pos of positions) {
-    let matching = display_targets.map(
-      dt => {
+    let matching = display_targets
+      .map((dt) => {
         const [customs, isins] = dt.target.tickers.reduce<[string[], string[]]>(
           ([customs, isins], { ticker, isin }) => {
-              return isin 
-                ? [customs, isins.concat(isin)]
-                : [customs.concat(ticker), isins];
+            return isin
+              ? [customs, isins.concat(isin)]
+              : [customs.concat(ticker), isins];
           },
           [[], []]
         );
 
         if (isins.includes(pos.isin) || customs.includes(pos.ticker)) {
-          return [dt, dt.target.weight]
+          return [dt, dt.target.weight];
         }
         if (
-          dt.target.direct && 
+          dt.target.direct &&
           dt.target.direct in funds &&
           pos.isin in funds[dt.target.direct].holdings
         ) {
-          return [dt, dt.target.weight * funds[dt.target.direct].holdings[pos.isin].weight]
+          return [
+            dt,
+            dt.target.weight *
+              funds[dt.target.direct].holdings[pos.isin].weight,
+          ];
         }
-        return undefined
+        return undefined;
       })
       .filter((t): t is [TargetPositionAggregation, number] => !!t);
     if (matching.length <= 1) {
@@ -94,9 +99,10 @@ export const joinTargetsToPositions = (
     }
   }
   return display_targets.concat(unallocated);
-}
+};
 
 export const selectTargetsJoinPositions = createSelector(
   [selectTargets, selectFunds, (_, positions: AccountPosition[]) => positions],
-  (targets, funds, positions) => joinTargetsToPositions(targets, funds, positions),
+  (targets, funds, positions) =>
+    joinTargetsToPositions(targets, funds, positions)
 );
